@@ -1,15 +1,33 @@
-//
-//  main.cpp
-//  2d.convex.hull++
-//
-//  Created by LOIC YVONNET on 14/08/2017.
-//  Copyright © 2017 LOIC YVONNET. All rights reserved.
-//
-
 #include <iostream>
+#include "point_concept.hpp"
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+struct p {
+    int x;
+    int y;
+};
+
+struct p2 {
+    int x;
+    int z;
+};
+
+struct p3 {
+
+};
+
+struct p4 {
+    double X;
+    double Y;
+};
+
+int main() {
+    std::cout << hull::has_member_x<p>::value << std::endl;
+    std::cout << hull::has_member_x<p3>::value << std::endl;
+    
+    std::cout << hull::is_point<p>::value << '\n';
+    std::cout << hull::is_point<p2>::value << '\n';
+    std::cout << hull::is_point<p3>::value << '\n';
+    std::cout << hull::is_point<p4>::value << '\n';
+    
+    std::cout << std::endl;
 }
