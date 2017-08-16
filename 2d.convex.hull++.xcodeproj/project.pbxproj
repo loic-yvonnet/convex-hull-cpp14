@@ -27,6 +27,11 @@
 		E76E206A1F41CF92007DC4BA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E76E20741F41D10E007DC4BA /* point_concept.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = point_concept.hpp; sourceTree = "<group>"; };
 		E76E20751F41DC48007DC4BA /* reflection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
+		E76E20761F430089007DC4BA /* point_concept_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = point_concept_test.hpp; sourceTree = "<group>"; };
+		E76E20771F430277007DC4BA /* test_main.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = test_main.hpp; sourceTree = "<group>"; };
+		E76E20781F433CD9007DC4BA /* algorithms.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = algorithms.hpp; sourceTree = "<group>"; };
+		E76E20791F4390DB007DC4BA /* angle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = angle.hpp; sourceTree = "<group>"; };
+		E76E207A1F439341007DC4BA /* angle_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = angle_test.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +76,8 @@
 			children = (
 				E76E20741F41D10E007DC4BA /* point_concept.hpp */,
 				E76E20751F41DC48007DC4BA /* reflection.hpp */,
+				E76E20781F433CD9007DC4BA /* algorithms.hpp */,
+				E76E20791F4390DB007DC4BA /* angle.hpp */,
 			);
 			name = lib;
 			sourceTree = "<group>";
@@ -78,6 +85,9 @@
 		E76E20731F41D08A007DC4BA /* test */ = {
 			isa = PBXGroup;
 			children = (
+				E76E20761F430089007DC4BA /* point_concept_test.hpp */,
+				E76E20771F430277007DC4BA /* test_main.hpp */,
+				E76E207A1F439341007DC4BA /* angle_test.hpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
