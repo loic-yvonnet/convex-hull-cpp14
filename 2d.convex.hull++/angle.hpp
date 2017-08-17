@@ -7,10 +7,29 @@
 #include <limits>
 
 namespace hull {
-    template <typename T>
+    template <
+        typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>
+    >
     constexpr bool equals(T a, T b) {
         constexpr const auto epsilon = std::numeric_limits<T>::epsilon();
         return (b - epsilon <= a) && (a <= b + epsilon);
+    }
+    
+    template <
+        typename T,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0
+    >
+    constexpr bool equals(T a, T b) {
+        return a == b;
+    }
+    
+    template <
+        typename TPoint,
+        typename std::enable_if_t<is_point_v<TPoint>(), int> = 0
+    >
+    constexpr bool equals(const TPoint& p1, const TPoint& p2) {
+        return equals(x(p1), x(p2)) && equals(y(p1), y(p2));
     }
     
     template <typename TPoint>
@@ -70,15 +89,20 @@ namespace hull {
                 return x(p1) >= 0 && x(p2) < 0;
             }
             else {
-                return x(p1) > 0;
+                return x(p1) >= 0;
             }
         }
         else if (equals(y(p2), zero)) {
             return x(p2) < 0;
         }
         else {
-            const auto div1 = -x(p1)/y(p1);
-            const auto div2 = -x(p2)/y(p2);
+            using div_type = std::conditional_t<std::is_integral<value_type>::value, double, value_type>;
+            const auto x1 = static_cast<div_type>(x(p1));
+            const auto y1 = static_cast<div_type>(y(p1));
+            const auto x2 = static_cast<div_type>(x(p2));
+            const auto y2 = static_cast<div_type>(y(p2));
+            const auto div1 = -x1/y1;
+            const auto div2 = -x2/y2;
             return equals(div1, div2) ? square_norm(p1) < square_norm(p2) : div1 < div2;
         }
     }

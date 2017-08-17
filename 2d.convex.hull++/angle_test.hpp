@@ -240,6 +240,27 @@ static auto test_sort_angles_with_origin2 = add_test([] {
     assert(std::equal(std::begin(points), std::end(points), std::begin(expected)));
 });
 
+static auto test_sort_angles_with_duplicates = add_test([] {
+    // Arrange
+    auto points = std::array<dummy_point, 8>{{
+        {-6., -6.}, {5., -4.}, {-6., -6.}, {7., 8.},
+        {-6., -6.}, {-6., -6.}, {-6., -6.}, {-6., -6.}
+    }};
+    const auto expected = std::array<dummy_point, 8>{{
+        {-6., -6.}, {-6., -6.}, {-6., -6.}, {-6., -6.},
+        {-6., -6.}, {-6., -6.}, {7., 8.}, {5., -4.}
+    }};
+    
+    // Act
+    std::sort(std::begin(points), std::end(points),
+              [](const auto& p1, const auto& p2) {
+                  return hull::compare_angles(p1, p2);
+              });
+    
+    // Assert
+    assert(std::equal(std::begin(points), std::end(points), std::begin(expected)));
+});
+
 static auto test_counterclockwise = add_test([] {
     // Arrange
     const auto collinear = std::array<dummy_point, 3>{{

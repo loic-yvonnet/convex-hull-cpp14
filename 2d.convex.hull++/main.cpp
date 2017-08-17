@@ -3,6 +3,9 @@
 #include "angle_test.hpp"
 #include "algorithms_test.hpp"
 
+#include <iostream>
+
 int main() {
     run_tests();
+    std::cout << "Test suite: OK" << std::endl;
 }
