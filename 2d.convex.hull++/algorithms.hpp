@@ -163,18 +163,68 @@ namespace hull {
         }
     }
     
+    struct graham_scan_t {};
+    struct monotone_chain_t {};
+    
+    namespace choice {
+        static constexpr const graham_scan_t graham_scan{};
+        static constexpr const monotone_chain_t monotone_chain{};
+    }
+    
     template <typename ForwardIt, typename RandomIt>
-    auto compute_convex_hull(ForwardIt first, ForwardIt last, RandomIt first2) {
-        auto last2 = std::copy(first, last, first2);
-        return algorithms::graham_scan(first2, last2);
+    auto compute_convex_hull(graham_scan_t policy, ForwardIt first, ForwardIt last, RandomIt first2) {
+        auto new_last = algorithms::graham_scan(first, last);
+        return std::copy(first, new_last, first2);
     }
     
     template <typename RandomIt1, typename RandomIt2>
-    auto compute_convex_hull2(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
-        std::fill_n(first2, 2 * std::distance(first, last),
-                    std::declval<typename std::iterator_traits<RandomIt2>::value_type>());
+    auto compute_convex_hull(monotone_chain_t policy, RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        using value_type = typename std::iterator_traits<RandomIt2>::value_type;
+        std::fill_n(first2, 2 * std::distance(first, last), value_type{});
         
         return algorithms::monotone_chain(first, last, first2);
+    }
+    
+    template <typename Policy, typename RandomIt1, typename RandomIt2>
+    auto compute_convex_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        return compute_convex_hull(Policy{}, first, last, first2);
+    }
+    
+    template <typename RandomIt1, typename RandomIt2>
+    auto compute_convex_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        return compute_convex_hull(choice::graham_scan, first, last, first2);
+    }
+    
+    namespace convex {
+        template <typename TContainer1, typename TContainer2>
+        void compute(graham_scan_t policy, const TContainer1& c1, TContainer2& c2) {
+            c2.resize(c1.size());
+            
+            std::copy(std::begin(c1), std::end(c1), std::begin(c2));
+            auto last = hull::algorithms::graham_scan(std::begin(c2), std::end(c2));
+            
+            c2.erase(last, std::end(c2));
+        }
+        
+        template <typename TContainer1, typename TContainer2>
+        void compute(monotone_chain_t policy, TContainer1 c1, TContainer2& c2) {
+            c2.resize(2 * c1.size());
+            
+            std::fill(std::begin(c2), std::end(c2), typename TContainer2::value_type{});
+            auto last = hull::algorithms::monotone_chain(std::begin(c1), std::end(c1), std::begin(c2));
+            
+            c2.erase(last, std::end(c2));
+        }
+        
+        template <typename Policy, typename TContainer1, typename TContainer2>
+        void compute(const TContainer1& c1, TContainer2& c2) {
+            compute(Policy{}, c1, c2);
+        }
+        
+        template <typename TContainer1, typename TContainer2>
+        void compute(const TContainer1& c1, TContainer2& c2) {
+            compute<hull::graham_scan_t>(c1, c2);
+        }
     }
 }
 
