@@ -35,6 +35,7 @@
 		E76E207B1F44A7A5007DC4BA /* algorithms_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = algorithms_test.hpp; sourceTree = "<group>"; };
 		E76E207C1F45E471007DC4BA /* graham_scan_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graham_scan_test.hpp; sourceTree = "<group>"; };
 		E76E207D1F45E496007DC4BA /* monotone_chain_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = monotone_chain_test.hpp; sourceTree = "<group>"; };
+		E76E207E1F461DFF007DC4BA /* utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = utils.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +82,7 @@
 				E76E20751F41DC48007DC4BA /* reflection.hpp */,
 				E76E20781F433CD9007DC4BA /* algorithms.hpp */,
 				E76E20791F4390DB007DC4BA /* angle.hpp */,
+				E76E207E1F461DFF007DC4BA /* utils.hpp */,
 			);
 			name = lib;
 			sourceTree = "<group>";
