@@ -33,6 +33,8 @@
 		E76E20791F4390DB007DC4BA /* angle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = angle.hpp; sourceTree = "<group>"; };
 		E76E207A1F439341007DC4BA /* angle_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = angle_test.hpp; sourceTree = "<group>"; };
 		E76E207B1F44A7A5007DC4BA /* algorithms_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = algorithms_test.hpp; sourceTree = "<group>"; };
+		E76E207C1F45E471007DC4BA /* graham_scan_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graham_scan_test.hpp; sourceTree = "<group>"; };
+		E76E207D1F45E496007DC4BA /* monotone_chain_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = monotone_chain_test.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +92,8 @@
 				E76E20771F430277007DC4BA /* test_main.hpp */,
 				E76E207A1F439341007DC4BA /* angle_test.hpp */,
 				E76E207B1F44A7A5007DC4BA /* algorithms_test.hpp */,
+				E76E207C1F45E471007DC4BA /* graham_scan_test.hpp */,
+				E76E207D1F45E496007DC4BA /* monotone_chain_test.hpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
