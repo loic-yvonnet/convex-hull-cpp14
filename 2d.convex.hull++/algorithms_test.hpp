@@ -12,8 +12,7 @@ struct point2d {
 };
 
 bool operator==(const point2d& p1, const point2d& p2) {
-    using namespace hull;
-    return x(p1) == x(p2) && y(p1) == y(p2);
+    return hull::equals(p1, p2);
 }
 
 static auto test_sort_by_polar_angles = add_test([] {

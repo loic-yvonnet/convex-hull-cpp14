@@ -16,8 +16,7 @@ struct dummy_point {
 };
 
 bool operator==(const dummy_point& p1, const dummy_point& p2) {
-    using namespace hull;
-    return equals(x(p1), x(p2)) && equals(y(p1), y(p2));
+    return hull::equals(p1, p2);
 }
 
 static auto test_angle_with_j = add_test([] {
