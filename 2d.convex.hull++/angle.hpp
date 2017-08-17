@@ -82,6 +82,20 @@ namespace hull {
             return equals(div1, div2) ? square_norm(p1) < square_norm(p2) : div1 < div2;
         }
     }
+    
+    template <typename TPoint>
+    constexpr bool compare_angles(const TPoint& p1, const TPoint& p2, const TPoint& origin) {
+        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        return compare_angles(p1 - origin, p2 - origin);
+    }
+    
+    // As per https://en.wikipedia.org/wiki/Graham_scan
+    template <typename TPoint>
+    auto cross(const TPoint& p1, const TPoint& p2, const TPoint& p3)
+    {
+        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        return (x(p2) - x(p1)) * (y(p3) - y(p1)) - (y(p2) - y(p1)) * (x(p3) - x(p1));
+    }
 }
 
 #endif

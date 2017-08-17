@@ -192,4 +192,75 @@ static auto test_sort_angles_with_negative_x = add_test([] {
     assert(std::equal(std::begin(points), std::end(points), std::begin(expected)));
 });
 
+static auto test_sort_angles_with_origin = add_test([] {
+    // Arrange
+    const dummy_point origin{0.5, 0.5};
+    auto points = std::array<dummy_point, 10>{{
+        {13., 5.}, {12., 8.}, {10., 3.}, {7., 7.},
+        {9., 6.}, {4., 1.}, {7., 1.}, {7., 4.},
+        {3., 3.}, {1., 1.}
+    }};
+    const auto expected = std::array<dummy_point, 10>{{
+        {7., 1.}, {4., 1.}, {10., 3.}, {13., 5.},
+        {7., 4.}, {9., 6.}, {12., 8.}, {1., 1.},
+        {3., 3.}, {7., 7.}
+    }};
+    
+    // Act
+    std::sort(std::begin(points), std::end(points),
+              [origin](const auto& p1, const auto& p2) {
+                  return hull::compare_angles(p1, p2, origin);
+              });
+    
+    // Assert
+    assert(std::equal(std::begin(points), std::end(points), std::begin(expected)));
+});
+
+static auto test_sort_angles_with_origin2 = add_test([] {
+    // Arrange
+    const dummy_point origin{4., 0.};
+    auto points = std::array<dummy_point, 9>{{
+        {13., 5.}, {12., 8.}, {10., 3.},
+        {7., 7.}, {9., 6.}, {7., 1.},
+        {7., 4.}, {3., 3.}, {1., 1.}
+    }};
+    const auto expected = std::array<dummy_point, 9>{{
+        {7., 1.}, {10., 3.}, {13., 5.},
+        {12., 8.}, {9., 6.}, {7., 4.},
+        {7., 7.}, {3., 3.}, {1., 1.}
+    }};
+    
+    // Act
+    std::sort(std::begin(points), std::end(points),
+              [origin](const auto& p1, const auto& p2) {
+                  return hull::compare_angles(p1, p2, origin);
+              });
+    
+    // Assert
+    assert(std::equal(std::begin(points), std::end(points), std::begin(expected)));
+});
+
+static auto test_counterclockwise = add_test([] {
+    // Arrange
+    const auto collinear = std::array<dummy_point, 3>{{
+        {1., 1.}, {3., 3.}, {7., 7.}
+    }};
+    const auto left_turn = std::array<dummy_point, 3>{{
+        {1., 1.}, {3., 5.}, {1., 10.}
+    }};
+    const auto right_turn = std::array<dummy_point, 3>{{
+        {1., 1.}, {3., 5.}, {7., 2.}
+    }};
+
+    // Act
+    const auto c1 = hull::cross(collinear[0], collinear[1], collinear[2]);
+    const auto c2 = hull::cross(left_turn[0], left_turn[1], left_turn[2]);
+    const auto c3 = hull::cross(right_turn[0], right_turn[1], right_turn[2]);
+    
+    // Assert
+    assert(c1 == 0);
+    assert(c2 > 0);
+    assert(c3 < 0);
+});
+
 #endif
