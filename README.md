@@ -10,7 +10,7 @@ The implementation is written in C++14 and requires a fully conformant C++14 com
 
 <h3>About points</h3>
 
-You can use your own definition of a point with the algorithms, if it contains public <code>x</code> and <code>y</code> data members (or <code>X</code> and <code>Y</code>, upper case). If your definition of a point provides different kinds of accessors to the coordinates, you can specialize the <code>is_point</code> template structure, and the <code>x()</code> and <code>y()</code> template functions.
+You can use your own definition of a point with the algorithms, if it contains public <code>x</code> and <code>y</code> data members (or <code>X</code> and <code>Y</code>, upper case). If your definition of a point provides different kinds of accessors to the coordinates, you can provide your specialization for the <code>is_point</code> template structure, and the <code>x()</code> and <code>y()</code> template functions.
 
 <h3>Examples</h3>
 
