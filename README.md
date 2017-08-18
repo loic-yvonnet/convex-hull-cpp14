@@ -99,7 +99,7 @@ In the namespace <code>hull::convex</code>.
 
 ```cpp
     template <typename TContainer1, typename TContainer2>
-    void compute(Policy policy, TContainer1 c1, TContainer2& c2); // (1)
+    void compute(Policy policy, const TContainer1& c1, TContainer2& c2); // (1)
     
     template <typename Policy, typename TContainer1, typename TContainer2>
     void compute(const TContainer1& c1, TContainer2& c2); // (2)
