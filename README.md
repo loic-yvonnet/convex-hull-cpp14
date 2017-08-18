@@ -1,4 +1,3 @@
-# convex-hull-cpp14
 Convex Hull Algorithms in C++14
 
 This small library provides a mono-threaded implementation for Graham Scan and Monotone Chain algorithms for the computation of the convex hull of a set of points in the 2D space.
@@ -83,6 +82,7 @@ For all these algorithms:
 <li><code>last</code> is the random access iterator to the one-past last point of the container.</li>
 <li><code>first2</code> is the random access iterator to the first point of the destination container.</li>
 <li>it returns the iterator to the last element forming the convex hull of the destination container of points.</li>
+<li>The average time complexity is O(N * log(N)).</li>
 </ul>
 
 Specificities:
@@ -106,3 +106,29 @@ In the namespace <code>hull::convex</code>.
     template <typename TContainer1, typename TContainer2>
     void compute(const TContainer1& c1, TContainer2& c2); // (3)
 ```
+
+For all these algorithms:
+<ul>
+<li>c1 is the input container of points.</li>
+<li>c2 is the destination container that will contain the convex hull.</li>
+</ul>
+
+Specificities:
+(1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code> or <code>hull::choice::monotone_chain</code>.
+
+(2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code> or <code>hull::monotone_chain_t</code>.
+
+(3) The default algorithm is Graham Scan, because it has a better average space complexity.
+
+<h2>Required enhancements</h2>
+
+The following enhancements would be the next natural steps for this library:
+<ul>
+<li>Implement the Jarvis March algorithm.</li>
+<li>Implement Chan's algorithm.</li>
+<li>Implement - or integrate an existing) tiny executor facility (thread pool + task queue).</li>
+<li>Impement a parallel version of Chan's algorithm thanks to this executor.</li>
+<li>Use bandit for unit testing instead of home-made</li>
+<li>Use C++17 features when compilers support it. For example: if constexpr.</li>
+<li>In C++20, everything should be rewritten with concepts, modules, ranges and reflection.</li>
+</ul>
