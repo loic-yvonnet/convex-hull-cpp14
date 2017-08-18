@@ -129,8 +129,8 @@ The following enhancements would be the next natural steps for this library:
 <li>Implement the Jarvis March algorithm.</li>
 <li>Implement Chan's algorithm.</li>
 <li>Implement - or integrate an existing - tiny executor facility (thread pool + task queue).</li>
-<li>Impement a parallel version of Chan's algorithm thanks to this executor.</li>
-<li>Use bandit for unit testing instead of home-made</li>
+<li>Implement a parallel version of Chan's algorithm thanks to this executor.</li>
+<li>Use Bandit for unit testing instead of a home-made library.</li>
 <li>Use C++17 features when compilers support it. For example: if constexpr.</li>
 <li>In C++20, everything should be rewritten with concepts, modules, ranges and reflection.</li>
 </ul>
