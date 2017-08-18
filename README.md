@@ -86,6 +86,7 @@ For all these algorithms:
 </ul>
 
 Specificities:
+
 (1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code> or <code>hull::choice::monotone_chain</code>.
 
 (2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code> or <code>hull::monotone_chain_t</code>.
@@ -109,11 +110,12 @@ In the namespace <code>hull::convex</code>.
 
 For all these algorithms:
 <ul>
-<li>c1 is the input container of points.</li>
-<li>c2 is the destination container that will contain the convex hull.</li>
+<li><code>c1</code> is the input container of points.</li>
+<li><code>c2</code> is the destination container that will contain the convex hull.</li>
 </ul>
 
 Specificities:
+
 (1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code> or <code>hull::choice::monotone_chain</code>.
 
 (2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code> or <code>hull::monotone_chain_t</code>.
