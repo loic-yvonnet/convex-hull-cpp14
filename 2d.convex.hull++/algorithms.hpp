@@ -1,3 +1,20 @@
+/**
+ * This file contains the convex hull computation algorithms.
+ * More about convex hull: https://en.wikipedia.org/wiki/Convex_hull
+ * For the moment, only Graham Scan and Monotone Chain are
+ * implemented.
+ * You may refer to the unit tests to see how to use this
+ * small library.
+ * The provided algorithms are mostly iterator-based, following the
+ * STL idioms for generality. However, container-based versions are
+ * provided for ease-of-use.
+ * Example:
+ *      struct point { double x; double y; }
+ *      std::vector<point> points = {{5., 2.}, ... };
+ *      std::vector<point> convex_hull;
+ *      hull::convex::compute(points, convex_hull);
+ */
+
 #ifndef algorithms_h
 #define algorithms_h
 
@@ -10,6 +27,12 @@
 namespace hull {
     namespace algorithms {
         namespace details {
+            /**
+             * Sort a container of points by their polar angles, as described
+             * in the Graham Scan algorithm.
+             * @param first - forward iterator to the first point of the container.
+             * @param last - forward iterator to the one-past last point of the container.
+             */
             template <typename ForwardIt>
             void sort_by_polar_angles(ForwardIt first, ForwardIt last) {
                 static_assert(is_point_v<typename std::iterator_traits<ForwardIt>::value_type>(), "ill-formed point");
@@ -37,6 +60,14 @@ namespace hull {
                 });
             }
             
+            /**
+             * Perform the selection part of the Graham Scan algorithm on a container
+             * of points. This selection occurs in-place.
+             * @param first - the random access iterator to the first point of the container.
+             * @param last - the random access iterator to the one-past last point of the container.
+             * @return - the iterator to the last element forming the convex hull of the
+             *           provided container of points.
+             */
             template <typename RandomIt>
             RandomIt perform_graham_scan(RandomIt first, RandomIt last) {
                 // let N = number of points
@@ -90,7 +121,19 @@ namespace hull {
             }
         }
         
-        // Reference: https://en.wikipedia.org/wiki/Graham_scan
+        /**
+         * Compute the convex hull of a container of points following
+         * the Graham Scan algorithm. This algorithm works in-place, and
+         * consequently modifies the input points.
+         * Average time complexity: O(N log(N)) where N is the number of
+         * points.
+         * Average space complexity: O(N).
+         * Reference: https://en.wikipedia.org/wiki/Graham_scan
+         * @param first - the random access iterator to the first point of the container.
+         * @param last - the random access iterator to the one-past last point of the container.
+         * @return - the iterator to the last element forming the convex hull of the
+         *           provided container of points.
+         */
         template <typename RandomIt>
         RandomIt graham_scan(RandomIt first, RandomIt last) {
             static_assert(is_point_v<typename std::iterator_traits<RandomIt>::value_type>(), "ill-formed point");
@@ -104,7 +147,20 @@ namespace hull {
             return details::perform_graham_scan(first, last);
         }
         
-        // Reference: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+        /**
+         * Compute the convex hull of a container of points following
+         * the Monotone Chain algorithm. This algorithm does not work in-place, but
+         * it still modifies the input points (it sorts them by x-coordinates).
+         * Average time complexity: O(N log(N)) where N is the number of
+         * points.
+         * Average space complexity: O(3*N).
+         * Reference: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+         * @param first - the random access iterator to the first point of the container.
+         * @param last - the random access iterator to the one-past last point of the container.
+         * @param first2 - the random access iterator to the first point of the destination container.
+         * @return - the iterator to the last element forming the convex hull of the
+         *           provided container of points.
+         */
         template <typename RandomIt1, typename RandomIt2>
         RandomIt2 monotone_chain(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
             using point_type1 = typename std::iterator_traits<RandomIt1>::value_type;
@@ -163,20 +219,56 @@ namespace hull {
         }
     }
     
+    /**
+     * Compile-time enumeration to choose the
+     * algorithm thanks to a policy approach.
+     * @param graham_scan_t - Graham Scan algorithm.
+     * @param monotone_chain_t - Monotone Chain algorithm.
+     */
     struct graham_scan_t {};
     struct monotone_chain_t {};
     
+    /**
+     * Algorithms policies to choose an overload.
+     * @param graham_scan - Graham Scan algorithm.
+     * @param monotone_chain - Monotone Chain algorithm.
+     */
     namespace choice {
         static constexpr const graham_scan_t graham_scan{};
         static constexpr const monotone_chain_t monotone_chain{};
     }
     
+    /**
+     * Overload of iterator-based convex hull computation for Graham Scan.
+     * Note that the input is modified and there is an extra copy to a 
+     * destination container.
+     * Average time complexity: O(N log(N)) where N is the number of
+     * points.
+     * Average space complexity: O(2*N).
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           destination container of points.
+     */
     template <typename ForwardIt, typename RandomIt>
     auto compute_convex_hull(graham_scan_t policy, ForwardIt first, ForwardIt last, RandomIt first2) {
         auto new_last = algorithms::graham_scan(first, last);
         return std::copy(first, new_last, first2);
     }
     
+    /**
+     * Overload of iterator-based convex hull computation for Monotone Chain.
+     * Note that the input is modified.
+     * Average time complexity: O(N log(N)) where N is the number of
+     * points.
+     * Average space complexity: O(3*N).
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           destination container of points.
+     */
     template <typename RandomIt1, typename RandomIt2>
     auto compute_convex_hull(monotone_chain_t policy, RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
         using value_type = typename std::iterator_traits<RandomIt2>::value_type;
@@ -185,17 +277,32 @@ namespace hull {
         return algorithms::monotone_chain(first, last, first2);
     }
     
+    /**
+     * Policy-based approach to call one of the previous functions.
+     */
     template <typename Policy, typename RandomIt1, typename RandomIt2>
     auto compute_convex_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
         return compute_convex_hull(Policy{}, first, last, first2);
     }
     
+    /**
+     * The default policy is Graham Scan because it provides a better
+     * average space complexity.
+     */
     template <typename RandomIt1, typename RandomIt2>
     auto compute_convex_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
         return compute_convex_hull(choice::graham_scan, first, last, first2);
     }
     
     namespace convex {
+        /**
+         * Overload of container-based convex hull computation for Graham Scan.
+         * Average time complexity: O(N log(N)) where N is the number of
+         * points.
+         * Average space complexity: O(2*N).
+         * @param c1 - the input container.
+         * @param c2 - the destination container.
+         */
         template <typename TContainer1, typename TContainer2>
         void compute(graham_scan_t policy, const TContainer1& c1, TContainer2& c2) {
             c2.resize(c1.size());
@@ -206,6 +313,14 @@ namespace hull {
             c2.erase(last, std::end(c2));
         }
         
+        /**
+         * Overload of container-based convex hull computation for Monotone Chain.
+         * Average time complexity: O(N log(N)) where N is the number of
+         * points.
+         * Average space complexity: O(4*N).
+         * @param c1 - the input container.
+         * @param c2 - the destination container.
+         */
         template <typename TContainer1, typename TContainer2>
         void compute(monotone_chain_t policy, TContainer1 c1, TContainer2& c2) {
             c2.resize(2 * c1.size());
@@ -216,11 +331,18 @@ namespace hull {
             c2.erase(last, std::end(c2));
         }
         
+        /**
+         * Policy-based approach to call one of the previous functions.
+         */
         template <typename Policy, typename TContainer1, typename TContainer2>
         void compute(const TContainer1& c1, TContainer2& c2) {
             compute(Policy{}, c1, c2);
         }
         
+        /**
+         * The default policy is Graham Scan because it provides a better
+         * average space complexity.
+         */
         template <typename TContainer1, typename TContainer2>
         void compute(const TContainer1& c1, TContainer2& c2) {
             compute<hull::graham_scan_t>(c1, c2);
