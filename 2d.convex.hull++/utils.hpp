@@ -6,6 +6,8 @@
 #ifndef utils_h
 #define utils_h
 
+#include <limits>
+
 namespace hull {
     /**
      * Floating-point computations involve numerical errors

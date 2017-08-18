@@ -1,3 +1,7 @@
+/**
+ * Unit tests for the point concept.
+ */
+
 #ifndef point_concept_test_h
 #define point_concept_test_h
 

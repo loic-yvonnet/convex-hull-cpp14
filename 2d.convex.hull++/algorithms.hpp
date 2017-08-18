@@ -245,6 +245,7 @@ namespace hull {
      * Average time complexity: O(N log(N)) where N is the number of
      * points.
      * Average space complexity: O(2*N).
+     * It is unfortunately not possible to use a std::back_insert_iterator.
      * @param first - the random access iterator to the first point of the container.
      * @param last - the random access iterator to the one-past last point of the container.
      * @param first2 - the random access iterator to the first point of the destination container.
@@ -263,6 +264,7 @@ namespace hull {
      * Average time complexity: O(N log(N)) where N is the number of
      * points.
      * Average space complexity: O(3*N).
+     * It is unfortunately not possible to use a std::back_insert_iterator.
      * @param first - the random access iterator to the first point of the container.
      * @param last - the random access iterator to the one-past last point of the container.
      * @param first2 - the random access iterator to the first point of the destination container.

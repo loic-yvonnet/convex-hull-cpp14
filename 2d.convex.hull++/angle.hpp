@@ -14,7 +14,6 @@
 #include "utils.hpp"
 
 #include <cmath>
-#include <limits>
 
 namespace hull {
     /**

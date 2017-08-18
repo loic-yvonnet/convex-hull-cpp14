@@ -1,3 +1,7 @@
+/**
+ * Unit tests for Monotone Chain algorithm.
+ */
+
 #ifndef monotone_chain_test_h
 #define monotone_chain_test_h
 

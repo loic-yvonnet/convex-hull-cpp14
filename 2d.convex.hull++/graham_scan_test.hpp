@@ -1,3 +1,7 @@
+/**
+ * Unit tests for Graham Scan algorithm.
+ */
+
 #ifndef graham_scan_test_h
 #define graham_scan_test_h
 

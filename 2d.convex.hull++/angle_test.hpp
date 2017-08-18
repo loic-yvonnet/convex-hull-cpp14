@@ -1,3 +1,7 @@
+/**
+ * Unit tests for the angle facilities.
+ */
+
 #ifndef angle_test_h
 #define angle_test_h
 
