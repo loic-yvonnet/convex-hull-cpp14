@@ -47,4 +47,24 @@ namespace details { \
 template<class T> \
 struct has_member_##member : decltype(details::has_member::member::test<T>(0)) {};
 
+/**
+ * Exactly the same idea for methods
+ */
+#define HAS_METHOD(method) \
+\
+namespace details { \
+    namespace has_method { \
+        namespace method { \
+            template <typename T> \
+            static auto test(int) -> decltype(std::declval<T>().method(), std::true_type()); \
+            \
+            template <typename> \
+            static auto test(long) -> std::false_type; \
+        } \
+    } \
+} \
+\
+template<class T> \
+struct has_method_##method : decltype(details::has_method::method::test<T>(0)) {};
+
 #endif

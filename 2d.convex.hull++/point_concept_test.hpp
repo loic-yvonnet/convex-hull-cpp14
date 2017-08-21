@@ -46,6 +46,36 @@ static auto test_valid_point_upper_case = add_test([] {
     assert(hull::is_point<p>::value == 1);
 });
 
+static auto test_valid_point_method_accessor_lower_case = add_test([] {
+    // Arrange
+    class p {
+        float coord_x{};
+        float coord_y{};
+    
+    public:
+        float x() const noexcept { return coord_x; }
+        float y() const noexcept { return coord_y; }
+    };
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 1);
+});
+
+static auto test_valid_point_method_accessor_upper_case = add_test([] {
+    // Arrange
+    class p {
+        short coord_x{};
+        short coord_y{};
+        
+    public:
+        short X() const noexcept { return coord_x; }
+        short Y() const noexcept { return coord_y; }
+    };
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 1);
+});
+
 static auto test_missing_y_coordinate = add_test([] {
     // Arrange
     struct p {
@@ -93,6 +123,34 @@ static auto test_X_free_function = add_test([] {
     
     // Act & Assert
     assert(hull::x<p>(_) == 0);
+});
+
+static auto test_case_mismatch = add_test([] {
+    // Arrange
+    class p {
+        short coord_x{};
+        short coord_y{};
+        
+    public:
+        short x() const noexcept { return coord_x; }
+        short Y() const noexcept { return coord_y; }
+    };
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 0);
+});
+
+static auto test_missing_y_method = add_test([] {
+    // Arrange
+    class p {
+        short coord_x{};
+        
+    public:
+        short x() const noexcept { return coord_x; }
+    };
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 0);
 });
 
 #endif

@@ -28,6 +28,10 @@ namespace hull {
     HAS_MEMBER(X); // has_member_X
     HAS_MEMBER(y); // has_member_y
     HAS_MEMBER(Y); // has_member_Y
+    HAS_METHOD(x); // has_method_x
+    HAS_METHOD(X); // has_method_X
+    HAS_METHOD(y); // has_method_y
+    HAS_METHOD(Y); // has_method_Y
     
     /**
      * Tells whether a given TPoint has x and y data members.
@@ -43,6 +47,22 @@ namespace hull {
     template <typename TPoint>
     constexpr bool has_X_Y() {
         return has_member_X<TPoint>::value && has_member_Y<TPoint>::value;
+    }
+    
+    /**
+     * Tells whether a given TPoint has x and y methods.
+     */
+    template <typename TPoint>
+    constexpr bool has_x_y_methods() {
+        return has_method_x<TPoint>::value && has_method_y<TPoint>::value;
+    }
+    
+    /**
+     * Tells whether a given TPoint has X and Y methods.
+     */
+    template <typename TPoint>
+    constexpr bool has_X_Y_methods() {
+        return has_method_X<TPoint>::value && has_method_Y<TPoint>::value;
     }
     
     /**
@@ -65,6 +85,20 @@ namespace hull {
      */
     template <typename TPoint>
     struct is_point<TPoint, std::enable_if_t<has_X_Y<TPoint>()>>: std::true_type {};
+    
+    /**
+     * If the type TPoint has x() and y() methods, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<has_x_y_methods<TPoint>()>>: std::true_type {};
+    
+    /**
+     * If the type TPoint has X() and Y() methods, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<has_X_Y_methods<TPoint>()>>: std::true_type {};
     
     /**
      * Helper compile-time function to tell whether a type
@@ -96,6 +130,26 @@ namespace hull {
     }
     
     /**
+     * Returns the x coordinate of a point.
+     * @param p - the point whose x coordinate is requested.
+     * @return - the x coordinate.
+     */
+    template <typename TPoint>
+    auto x(const TPoint& p) -> decltype(p.x()) {
+        return p.x();
+    }
+    
+    /**
+     * Returns the X coordinate of a point.
+     * @param p - the point whose X coordinate is requested.
+     * @return - the X coordinate.
+     */
+    template <typename TPoint>
+    auto x(const TPoint& p) -> decltype(p.X()) {
+        return p.X();
+    }
+    
+    /**
      * Returns the y coordinate of a point.
      * @param p - the point whose y coordinate is requested.
      * @return - the y coordinate.
@@ -113,6 +167,26 @@ namespace hull {
     template <typename TPoint>
     auto y(const TPoint& p) -> decltype(p.Y) {
         return p.Y;
+    }
+    
+    /**
+     * Returns the y coordinate of a point.
+     * @param p - the point whose y coordinate is requested.
+     * @return - the y coordinate.
+     */
+    template <typename TPoint>
+    auto y(const TPoint& p) -> decltype(p.y()) {
+        return p.y();
+    }
+    
+    /**
+     * Returns the Y coordinate of a point.
+     * @param p - the point whose Y coordinate is requested.
+     * @return - the Y coordinate.
+     */
+    template <typename TPoint>
+    auto y(const TPoint& p) -> decltype(p.Y()) {
+        return p.Y();
     }
 }
 
