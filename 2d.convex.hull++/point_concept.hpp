@@ -101,6 +101,13 @@ namespace hull {
     struct is_point<TPoint, std::enable_if_t<has_X_Y_methods<TPoint>()>>: std::true_type {};
     
     /**
+     * If the type TPoint is an array with at least 2 elements, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<std::is_array<TPoint>::value && std::extent<TPoint>::value >= 2>>: std::true_type {};
+    
+    /**
      * Helper compile-time function to tell whether a type
      * TPoint fit the point concept requirements.
      */
@@ -150,6 +157,16 @@ namespace hull {
     }
     
     /**
+     * Returns the x coordinate of a point.
+     * @param p - the point whose x coordinate is requested.
+     * @return - the x coordinate.
+     */
+    template <typename TPoint>
+    auto x(const TPoint& p) -> decltype(p[0]) {
+        return p[0];
+    }
+    
+    /**
      * Returns the y coordinate of a point.
      * @param p - the point whose y coordinate is requested.
      * @return - the y coordinate.
@@ -187,6 +204,16 @@ namespace hull {
     template <typename TPoint>
     auto y(const TPoint& p) -> decltype(p.Y()) {
         return p.Y();
+    }
+    
+    /**
+     * Returns the y coordinate of a point.
+     * @param p - the point whose y coordinate is requested.
+     * @return - the y coordinate.
+     */
+    template <typename TPoint>
+    auto y(const TPoint& p) -> decltype(p[1]) {
+        return p[1];
     }
 }
 

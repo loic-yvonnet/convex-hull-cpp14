@@ -76,6 +76,22 @@ static auto test_valid_point_method_accessor_upper_case = add_test([] {
     assert(hull::is_point<p>::value == 1);
 });
 
+static auto test_valid_point_array_size_2 = add_test([] {
+    // Arrange
+    using p = int[2];
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 1);
+});
+
+static auto test_valid_point_array_size_3 = add_test([] {
+    // Arrange
+    using p = int[3];
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 1);
+});
+
 static auto test_missing_y_coordinate = add_test([] {
     // Arrange
     struct p {
@@ -105,26 +121,6 @@ static auto test_missing_coordinates = add_test([] {
     assert(hull::is_point<p>::value == 0);
 });
 
-static auto test_x_free_function = add_test([] {
-    // Arrange
-    struct p {
-        int x{};
-    } _;
-    
-    // Act & Assert
-    assert(hull::x<p>(_) == 0);
-});
-
-static auto test_X_free_function = add_test([] {
-    // Arrange
-    struct p {
-        int X{};
-    } _;
-    
-    // Act & Assert
-    assert(hull::x<p>(_) == 0);
-});
-
 static auto test_case_mismatch = add_test([] {
     // Arrange
     class p {
@@ -151,6 +147,84 @@ static auto test_missing_y_method = add_test([] {
     
     // Act & Assert
     assert(hull::is_point<p>::value == 0);
+});
+
+static auto test_too_small_array = add_test([] {
+    // Arrange
+    using p = float[1];
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 0);
+});
+
+static auto test_a_value_is_not_a_point = add_test([] {
+    // Arrange
+    using p = float;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == 0);
+});
+
+static auto test_x_free_function = add_test([] {
+    // Arrange
+    struct p {
+        int x{};
+    } _;
+    
+    // Act & Assert
+    assert(hull::x(_) == 0);
+});
+
+static auto test_X_free_function = add_test([] {
+    // Arrange
+    struct p {
+        int X{};
+    } _;
+    
+    // Act & Assert
+    assert(hull::x(_) == 0);
+});
+
+static auto test_x_free_function_for_method_accessor = add_test([] {
+    // Arrange
+    class p {
+        int coord_x{};
+        
+    public:
+        constexpr int x() const noexcept { return coord_x; }
+    } _;
+    
+    // Act & Assert
+    assert(hull::x(_) == 0);
+});
+
+static auto test_X_free_function_for_method_accessor = add_test([] {
+    // Arrange
+    class p {
+        int coord_x{};
+        
+    public:
+        constexpr int X() const noexcept { return coord_x; }
+    } _;
+    
+    // Act & Assert
+    assert(hull::x(_) == 0);
+});
+
+static auto test_x_free_function_for_array = add_test([] {
+    // Arrange
+    char coord[1] = { 0 };
+    
+    // Act & Assert
+    assert(hull::x(coord) == 0);
+});
+
+static auto test_y_free_function_for_array = add_test([] {
+    // Arrange
+    double coord[3] = { 1., 2., 3. };
+    
+    // Act & Assert
+    assert(hull::y(coord) == 2.);
 });
 
 #endif
