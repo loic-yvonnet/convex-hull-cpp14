@@ -36,6 +36,7 @@
 		E76E207C1F45E471007DC4BA /* graham_scan_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graham_scan_test.hpp; sourceTree = "<group>"; };
 		E76E207D1F45E496007DC4BA /* monotone_chain_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = monotone_chain_test.hpp; sourceTree = "<group>"; };
 		E76E207E1F461DFF007DC4BA /* utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = utils.hpp; sourceTree = "<group>"; };
+		E77B75B21F4C56CB00046061 /* jarvis_march_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = jarvis_march_test.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +97,7 @@
 				E76E207B1F44A7A5007DC4BA /* algorithms_test.hpp */,
 				E76E207C1F45E471007DC4BA /* graham_scan_test.hpp */,
 				E76E207D1F45E496007DC4BA /* monotone_chain_test.hpp */,
+				E77B75B21F4C56CB00046061 /* jarvis_march_test.hpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -275,6 +277,7 @@
 				E76E20701F41CF92007DC4BA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

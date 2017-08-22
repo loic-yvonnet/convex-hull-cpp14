@@ -125,7 +125,7 @@ namespace hull {
          * Compute the convex hull of a container of points following
          * the Graham Scan algorithm. This algorithm works in-place, and
          * consequently modifies the input points.
-         * Average time complexity: O(N log(N)) where N is the number of
+         * Average time complexity: O(N * log(N)) where N is the number of
          * points.
          * Average space complexity: O(N).
          * Reference: https://en.wikipedia.org/wiki/Graham_scan
@@ -151,9 +151,9 @@ namespace hull {
          * Compute the convex hull of a container of points following
          * the Monotone Chain algorithm. This algorithm does not work in-place, but
          * it still modifies the input points (it sorts them by x-coordinates).
-         * Average time complexity: O(N log(N)) where N is the number of
+         * Average time complexity: O(N * log(N)) where N is the number of
          * points.
-         * Average space complexity: O(3*N).
+         * Average space complexity: O(3 * N).
          * Reference: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
          * @param first - the random access iterator to the first point of the container.
          * @param last - the random access iterator to the one-past last point of the container.
@@ -216,6 +216,85 @@ namespace hull {
             }
             
             return first2 + (k - 1);
+        }
+        
+        /**
+         * Compute the convex hull of a container of points following
+         * the Jarvis March algorithm.
+         * Average time complexity: O(N * H) where N is the number of input
+         * points and H the number of points on the convex hull.
+         * Average space complexity: O(N + H).
+         * Reference: https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
+         * @param first - the random access iterator to the first point of the container.
+         * @param last - the random access iterator to the one-past last point of the container.
+         * @param first2 - the random access iterator to the first point of the destination container.
+         * @return - the iterator to the last element forming the convex hull of the
+         *           provided container of points.
+         */
+        template <typename RandomIt1, typename RandomIt2>
+        RandomIt2 jarvis_march(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+            using point_type1 = typename std::iterator_traits<RandomIt1>::value_type;
+            using point_type2 = typename std::iterator_traits<RandomIt2>::value_type;
+            
+            static_assert(is_point_v<point_type1>(), "ill-formed point");
+            static_assert(is_point_v<point_type2>(), "ill-formed point");
+            static_assert(std::is_same<
+                            typename std::iterator_traits<RandomIt1>::iterator_category,
+                            std::random_access_iterator_tag
+                          >(), "random access iterator required");
+            static_assert(std::is_same<
+                            typename std::iterator_traits<RandomIt2>::iterator_category,
+                            std::random_access_iterator_tag
+                          >(), "random access iterator required");
+         
+            const auto N = std::distance(first, last);
+            if (N <= 1) {
+                return std::copy(first, last, first2);
+            }
+            
+            // leftmost point
+            const auto min_x = std::min_element(first, last, [](const auto& p1, const auto& p2) {
+                return x(p1) < x(p2) || (x(p1) == x(p2) && y(p1) > y(p2));
+            });
+            auto point_on_hull = *min_x;
+            decltype(point_on_hull) endpoint;
+            
+            // Helper lambda to determine wheter sj is on the left of line pi to endpoint
+            auto is_on_the_left = [&endpoint](const auto& pi, const auto& sj) {
+                const auto res = cross(pi, endpoint, sj);
+                
+                // If they are collinear, we take the farthest point from pi
+                if (hull::equals(res, static_cast<decltype(res)>(0))) {
+                    return hull::square_norm(sj - pi) > hull::square_norm(endpoint - pi);
+                }
+                
+                return res > 0;
+            };
+            
+            // Repeat until wrapped around to first hull point
+            std::size_t i{};
+            do {
+                // P[i] = pointOnHull
+                *(first2 + i) = point_on_hull;
+                
+                // initial endpoint for a candidate edge on the hull
+                endpoint = *first2;
+                
+                // for j from 1 to |S|
+                std::for_each(first, last, [&endpoint, &point_on_hull, first2, i, is_on_the_left](const auto& sj) {
+                    // if (endpoint == pointOnHull) or (S[j] is on left of line from P[i] to endpoint)
+                    if (hull::equals(endpoint, point_on_hull) || is_on_the_left(*(first2 + i), sj)) {
+                        // found greater left turn, update endpoint
+                        endpoint = sj;
+                    }
+                });
+                
+                i++;
+                point_on_hull = endpoint;
+            }
+            while (!hull::equals(endpoint, *first2));
+            
+            return first2 + i;
         }
         
         /**
