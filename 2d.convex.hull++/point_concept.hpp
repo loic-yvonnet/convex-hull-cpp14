@@ -103,6 +103,8 @@ namespace hull {
     /**
      * If the type TPoint is an array with at least 2 elements, then it fits
      * the point concept requirements.
+     * WARNING: the algorithms in this library require also operator= on TPoint.
+     * A C-style array does not have operator=. You need to use a C++ std::array.
      */
     template <typename TPoint>
     struct is_point<TPoint, std::enable_if_t<std::is_array<TPoint>::value && std::extent<TPoint>::value >= 2>>: std::true_type {};
