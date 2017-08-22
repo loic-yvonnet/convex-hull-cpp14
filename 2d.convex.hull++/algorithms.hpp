@@ -347,27 +347,31 @@ namespace hull {
      * algorithm thanks to a policy approach.
      * @param graham_scan_t - Graham Scan algorithm.
      * @param monotone_chain_t - Monotone Chain algorithm.
+     * @param jarvis_march_t - Jarvis March algorithm.
      */
     struct graham_scan_t {};
     struct monotone_chain_t {};
+    struct jarvis_march_t {};
     
     /**
      * Algorithms policies to choose an overload.
      * @param graham_scan - Graham Scan algorithm.
      * @param monotone_chain - Monotone Chain algorithm.
+     * @param jarvis_march - Jarvis March algorithm.
      */
     namespace choice {
         static constexpr const graham_scan_t graham_scan{};
         static constexpr const monotone_chain_t monotone_chain{};
+        static constexpr const jarvis_march_t jarvis_march{};
     }
     
     /**
      * Overload of iterator-based convex hull computation for Graham Scan.
      * Note that the input is modified and there is an extra copy to a 
      * destination container.
-     * Average time complexity: O(N log(N)) where N is the number of
+     * Average time complexity: O(N * log(N)) where N is the number of
      * points.
-     * Average space complexity: O(2*N).
+     * Average space complexity: O(2 * N).
      * It is unfortunately not possible to use a std::back_insert_iterator.
      * @param first - the random access iterator to the first point of the container.
      * @param last - the random access iterator to the one-past last point of the container.
@@ -384,9 +388,9 @@ namespace hull {
     /**
      * Overload of iterator-based convex hull computation for Monotone Chain.
      * Note that the input is modified.
-     * Average time complexity: O(N log(N)) where N is the number of
+     * Average time complexity: O(N * log(N)) where N is the number of
      * points.
-     * Average space complexity: O(3*N).
+     * Average space complexity: O(3 * N).
      * It is unfortunately not possible to use a std::back_insert_iterator.
      * @param first - the random access iterator to the first point of the container.
      * @param last - the random access iterator to the one-past last point of the container.
@@ -400,6 +404,26 @@ namespace hull {
         std::fill_n(first2, 2 * std::distance(first, last), value_type{});
         
         return algorithms::monotone_chain(first, last, first2);
+    }
+    
+    /**
+     * Overload of iterator-based convex hull computation for Jarvis March.
+     * Average time complexity: O(N * H) where N is the number of input
+     * points and H is the number of point on the convex hull.
+     * Average space complexity: O(2 * N).
+     * It is unfortunately not possible to use a std::back_insert_iterator.
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           destination container of points.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    auto compute_convex_hull(jarvis_march_t policy, RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        using value_type = typename std::iterator_traits<RandomIt2>::value_type;
+        std::fill_n(first2, std::distance(first, last), value_type{});
+        
+        return algorithms::jarvis_march(first, last, first2);
     }
     
     /**
@@ -422,9 +446,9 @@ namespace hull {
     namespace convex {
         /**
          * Overload of container-based convex hull computation for Graham Scan.
-         * Average time complexity: O(N log(N)) where N is the number of
+         * Average time complexity: O(N * log(N)) where N is the number of
          * points.
-         * Average space complexity: O(2*N).
+         * Average space complexity: O(2 * N).
          * @param c1 - the input container.
          * @param c2 - the destination container.
          */
@@ -440,9 +464,9 @@ namespace hull {
         
         /**
          * Overload of container-based convex hull computation for Monotone Chain.
-         * Average time complexity: O(N log(N)) where N is the number of
+         * Average time complexity: O(N * log(N)) where N is the number of
          * points.
-         * Average space complexity: O(4*N).
+         * Average space complexity: O(4 * N).
          * @param c1 - the input container.
          * @param c2 - the destination container.
          */
@@ -452,6 +476,24 @@ namespace hull {
             
             std::fill(std::begin(c2), std::end(c2), typename TContainer2::value_type{});
             auto last = hull::algorithms::monotone_chain(std::begin(c1), std::end(c1), std::begin(c2));
+            
+            c2.erase(last, std::end(c2));
+        }
+        
+        /**
+         * Overload of container-based convex hull computation for Jarvis March.
+         * Average time complexity: O(N * H) where N is the number of input
+         * points and H is the number of points on the convex hull.
+         * Average space complexity: O(2 * N).
+         * @param c1 - the input container.
+         * @param c2 - the destination container.
+         */
+        template <typename TContainer1, typename TContainer2>
+        void compute(jarvis_march_t policy, const TContainer1& c1, TContainer2& c2) {
+            c2.resize(c1.size());
+            
+            std::fill(std::begin(c2), std::end(c2), typename TContainer2::value_type{});
+            auto last = hull::algorithms::jarvis_march(std::begin(c1), std::end(c1), std::begin(c2));
             
             c2.erase(last, std::end(c2));
         }

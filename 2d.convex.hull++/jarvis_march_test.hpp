@@ -185,7 +185,7 @@ static auto test_jarvis_march_collinear_x = add_test([] {
     const auto expected = std::array<point2d, 2>{{
         {-10, 1}, {10, 1}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
@@ -203,7 +203,7 @@ static auto test_jarvis_march_collinear_y = add_test([] {
     const auto expected = std::array<point2d, 2>{{
         {1, 10}, {1, -10}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
@@ -221,7 +221,7 @@ static auto test_jarvis_march_collinear = add_test([] {
     const auto expected = std::array<point2d, 2>{{
         {-7, -7}, {23, 23}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
@@ -240,7 +240,7 @@ static auto test_jarvis_march_duplicate_origin = add_test([] {
     const auto expected = std::array<point2d, 3>{{
         {-6, -6}, {7, 8}, {5, -4}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
@@ -261,7 +261,7 @@ static auto test_jarvis_march_duplicate_points = add_test([] {
     const auto expected = std::array<point2d, 4>{{
         {-6, -6}, {-5, 7}, {7, 8}, {5, -4}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
@@ -286,7 +286,7 @@ static auto test_jarvis_march_more_duplicate_points = add_test([] {
     const auto expected = std::array<point2d, 4>{{
         {-6, -6}, {-5, 7}, {7, 8}, {5, -4}
     }};
-    std::vector<point2d> target( points.size());
+    std::vector<point2d> target(points.size());
     
     // Act
     const auto last = hull::algorithms::jarvis_march(std::begin(points), std::end(points), std::begin(target));
