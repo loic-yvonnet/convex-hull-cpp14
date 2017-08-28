@@ -6,7 +6,7 @@
 #define algorithms_test_h
 
 #include "test_main.hpp"
-#include "algorithms.hpp"
+#include "../hull/algorithms.hpp"
 
 #include <array>
 #include <vector>

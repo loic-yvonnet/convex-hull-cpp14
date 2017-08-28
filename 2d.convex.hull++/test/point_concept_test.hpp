@@ -8,7 +8,7 @@
 #include <cassert>
 
 #include "test_main.hpp"
-#include "point_concept.hpp"
+#include "../hull/point_concept.hpp"
 
 static auto test_has_member_x = add_test([] {
     // Arrange

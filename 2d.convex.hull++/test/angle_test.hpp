@@ -6,7 +6,7 @@
 #define angle_test_h
 
 #include "test_main.hpp"
-#include "angle.hpp"
+#include "../hull/angle.hpp"
 
 #include <algorithm>
 #include <array>
