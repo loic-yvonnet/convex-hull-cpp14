@@ -1,6 +1,6 @@
 <h1>Convex Hull Algorithms in C++14</h1>
 
-This small library provides a mono-threaded implementation for Graham Scan and Monotone Chain algorithms for the computation of the convex hull of a set of points in the 2D space.
+This small library provides a mono-threaded implementation for Graham Scan, Monotone Chain and Jarvis algorithms for the computation of the convex hull of a set of points in the 2D space.
 
 <h2>Build prerequisites</h2>
 
@@ -10,7 +10,11 @@ The implementation is written in C++14 and requires a fully conformant C++14 com
 
 <h3>About points</h3>
 
-You can use your own definition of a point with the algorithms, if it contains public <code>x</code> and <code>y</code> data members (or <code>X</code> and <code>Y</code>, upper case). If your definition of a point provides different kinds of accessors to the coordinates, you can provide your specialization for the <code>is_point</code> template structure, and the <code>x()</code> and <code>y()</code> template functions.
+You can use your own definition of a point with the algorithms, if it contains (either):
+<ul>
+<li>public <code>x</code> and <code>y</code> data members (or <code>X</code> and <code>Y</code>, upper case).</li>
+<li>public <code>x</code> and <code>y</code> methods (or <code>X</code> and <code>Y</code>, upper case).</li>
+<li>If your definition of a point provides different kinds of accessors to the coordinates, you can provide your specialization for the <code>is_point</code> template structure, and the <code>x()</code> and <code>y()</code> template functions.</li>
 
 <h3>Examples</h3>
 
