@@ -22,7 +22,11 @@
 #include "angle.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
+#include <limits>
+#include <experimental/optional>
+#include <utility>
 
 namespace hull {
     namespace algorithms {
@@ -298,6 +302,17 @@ namespace hull {
         }
         
         /**
+         *
+         */
+        template <
+            typename RandomIt,
+            typename TPoint = typename RandomIt::value_type
+        >
+        RandomIt max_jarvis_march(RandomIt first, RandomIt last, const TPoint& p0, const TPoint& p1) {
+            return first;
+        }
+        
+        /**
          * AABB bounding box implementation.
          * This is not a convex hull algorithm but like convex hull, it
          * surrounds the input set of points.
@@ -337,6 +352,90 @@ namespace hull {
             *first2   = point_type{x(*min_x), y(*max_y)};
             
             return first2;
+        }
+        
+        /**
+         * Implementation of Chan algorithm, which is theoretically
+         * the most performant in operational research terms.
+         * Reference: http://www.cs.wustl.edu/~pless/506/l3.html
+         */
+        template <typename RandomIt, typename OutputIt>
+        std::experimental::optional<OutputIt> chan_impl(RandomIt first, RandomIt last, OutputIt first2, std::size_t m) {
+            if (first == last) {
+                return {};
+            }
+            
+            // (1) Let r = ceil(n/m).
+            const auto n = std::distance(first, last);
+            const auto r = static_cast<std::size_t>(std::ceil(static_cast<double>(n) / static_cast<double>(m)));
+            
+            // Partition P into disjoint subsets P(1),P(2),... P(r), each of size at most m.
+            // no-op: we take the points in their original order, and assume the subsets at
+            // indices [0 ; m - 1], [m ; 2m - 1], etc.
+            // We define a lambda to clarify the access to P(i):
+            auto P = [first, m](auto i) {
+                return first + (i * m);
+            };
+            
+            // Extra memory required to store the size of the sub-convex hulls
+            std::vector<RandomIt> lasts;
+            lasts.reserve(r);
+            
+            // (2) For i = 1 to r do:
+            //     (a) Compute Hull(P(i)) using Graham's scan and store the vertices in an ordered array.
+            for (std::size_t i{}; i < r - 1; i++) {
+                const auto convex_hull_last = graham_scan(P(i), P(i + 1));
+                lasts.push_back(convex_hull_last);
+            }
+            
+            // Last subset, which may be smaller
+            {
+                const auto convex_hull_last = graham_scan(P(r - 1), last);
+                lasts.push_back(convex_hull_last);
+            }
+            
+            // (3) Let point_on_hull be the bottommost point of P
+            const auto min_y = std::min_element(first, last, [](const auto& p1, const auto& p2) {
+                return y(p1) < y(p2) || (y(p1) == y(p2) && x(p1) > x(p2));
+            });
+            auto point_on_hull = *min_y;
+            
+            // Let endpoint = (-Inf; 0)
+            using point_type = decltype(point_on_hull);
+            using coord_type = decltype(x(std::declval<point_type>()));
+            auto endpoint = point_type{std::numeric_limits<coord_type>::lowest(), static_cast<coord_type>(0)};
+            
+            // (4) For k = 1 to m do:
+            //     (a) For i = 1 to r do:
+            //         Compute point q in P(i) that maximizes the angle p(k-1)  p(k)  q
+            //     (b) Let p(k+1) be the point q in q(1),q(2),...q(r) than maximizes the angle p(k-1)  p(k)  q
+            //     (c) If p(k+1) = p(1) then return {p(1), p(2), ... p(k)}.
+            std::vector<point_type> q(r);
+            for (std::size_t k{}; k < m; k++) {
+                *first2++ = point_on_hull;
+                
+                for (std::size_t i{}; i < r; i++) {
+                    q[i] = *max_jarvis_march(P(i), lasts[i], point_on_hull, endpoint);
+                }
+                
+                const auto pk = max_jarvis_march(std::begin(q), std::end(q), point_on_hull, endpoint);
+                
+                endpoint = point_on_hull;
+                point_on_hull = *pk;
+            
+                // I do not understand how to have a binary search maximize something!
+                //for (std::size_t i{}; i < r; i++) {
+                    //q[i] = std::lower_bound(P(i), lasts[i], [&point_on_hull, &endpoint](const auto& p1, const auto& p2) {
+                    //    return hull::compare_angles();
+                    //});
+                //}
+                
+                //point_on_hull = ??
+                
+            }
+            
+            // (5) Return "m was too small, try again"
+            return {};
         }
     }
     

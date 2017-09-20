@@ -33,6 +33,7 @@ bool operator==(const point2d& p1, const point2d& p2) {
 #include "graham_scan_test.hpp"
 #include "monotone_chain_test.hpp"
 #include "jarvis_march_test.hpp"
+#include "chan_test.hpp"
 
 static auto test_convex_hull_compute_with_graham = add_test([] {
     // Arrange
