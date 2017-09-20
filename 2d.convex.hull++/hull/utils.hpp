@@ -1,6 +1,6 @@
 /**
  * Some common template functions utilities that do
- * do belong anywhere else.
+ * not belong anywhere else.
  */
 
 #ifndef utils_h

@@ -328,10 +328,8 @@ namespace hull {
                 return y(p1) < y(p2);
             };
             
-            const auto min_x = std::min_element(first, last, less_x);
-            const auto max_x = std::max_element(first, last, less_x);
-            const auto min_y = std::min_element(first, last, less_y);
-            const auto max_y = std::max_element(first, last, less_y);
+            const auto [min_x, max_x] = std::minmax_element(first, last, less_x);
+            const auto [min_y, max_y] = std::minmax_element(first, last, less_y);
             
             *first2++ = point_type{x(*min_x), y(*min_y)};
             *first2++ = point_type{x(*max_x), y(*min_y)};
