@@ -454,6 +454,38 @@ namespace hull {
             // (5) Return "m was too small, try again"
             return {};
         }
+        
+        template <typename RandomIt, typename OutputIt>
+        OutputIt chan(RandomIt first, RandomIt last, OutputIt first2) {
+            using point_type = typename std::iterator_traits<RandomIt>::value_type;
+            
+            static_assert(is_point_v<point_type>(), "ill-formed point");
+            static_assert(std::is_same<
+                              typename std::iterator_traits<RandomIt>::iterator_category,
+                              std::random_access_iterator_tag
+                          >(), "random access iterator required");
+            
+            if (first == last) {
+                return first2;
+            }
+            
+            // (1) For t = 1; 2; 3... do:
+            //     (a) Let m = min(2^(2^t),n)
+            //     (b) Invoke PartialHull(P, m), returning the result in L.
+            //     (c) If L != ``try again'' then return L.
+            const std::size_t n = std::distance(first, last);
+            std::vector<point_type> intermediary(n);
+            
+            for (std::size_t t{1}; ; t++) {
+                const std::size_t pow = 1 << (1 << t);
+                const auto m = std::min(pow, n); // warning: may overflow
+                const auto last_intermediary = chan_impl(first, last, std::begin(intermediary), m);
+                if (last_intermediary) {
+                    return std::move(std::begin(intermediary), *last_intermediary, first2);
+                }
+                intermediary.clear();
+            }
+        }
     }
     
     /**
