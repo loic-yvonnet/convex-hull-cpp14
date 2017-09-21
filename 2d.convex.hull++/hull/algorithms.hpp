@@ -285,9 +285,9 @@ namespace hull {
                 endpoint = *first2;
                 
                 // for j from 1 to |S|
-                std::for_each(first, last, [&endpoint, &point_on_hull, first2, i, is_on_the_left](const auto& sj) {
+                std::for_each(first, last, [&endpoint, &point_on_hull, is_on_the_left](const auto& sj) {
                     // if (endpoint == pointOnHull) or (S[j] is on left of line from P[i] to endpoint)
-                    if (hull::equals(endpoint, point_on_hull) || is_on_the_left(*(first2 + i), sj)) {
+                    if (hull::equals(endpoint, point_on_hull) || is_on_the_left(point_on_hull, sj)) {
                         // found greater left turn, update endpoint
                         endpoint = sj;
                     }
@@ -308,8 +308,30 @@ namespace hull {
             typename RandomIt,
             typename TPoint = typename RandomIt::value_type
         >
-        RandomIt max_jarvis_march(RandomIt first, RandomIt last, const TPoint& p0, const TPoint& p1) {
-            return first;
+        TPoint max_jarvis_march(RandomIt first, RandomIt last, const TPoint& point_on_hull) {
+            auto endpoint = point_on_hull;
+            
+            // Helper lambda to determine wheter sj is on the left of line pi to endpoint
+            auto is_on_the_left = [&endpoint, &point_on_hull](const auto& sj) {
+                const auto res = cross(point_on_hull, endpoint, sj);
+                
+                // If they are collinear, we take the farthest point from pi
+                if (hull::equals(res, static_cast<decltype(res)>(0))) {
+                    return hull::square_norm(sj - point_on_hull) > hull::square_norm(endpoint - point_on_hull);
+                }
+                
+                return res > 0;
+            };
+            
+            std::for_each(first, last, [&endpoint, &point_on_hull, is_on_the_left](const auto& sj) {
+                // if (endpoint == pointOnHull) or (S[j] is on left of line from P[i] to endpoint)
+                if (hull::equals(endpoint, point_on_hull) || is_on_the_left(sj)) {
+                    // found greater left turn, update endpoint
+                    endpoint = sj;
+                }
+            });
+            
+            return endpoint;
         }
         
         /**
@@ -399,6 +421,7 @@ namespace hull {
                 return y(p1) < y(p2) || (y(p1) == y(p2) && x(p1) > x(p2));
             });
             auto point_on_hull = *min_y;
+            const auto pfirst = *min_y;
             
             // Let endpoint = (-Inf; 0)
             using point_type = decltype(point_on_hull);
@@ -415,23 +438,17 @@ namespace hull {
                 *first2++ = point_on_hull;
                 
                 for (std::size_t i{}; i < r; i++) {
-                    q[i] = *max_jarvis_march(P(i), lasts[i], point_on_hull, endpoint);
+                    q[i] = max_jarvis_march(P(i), lasts[i], point_on_hull/*, endpoint*/);
                 }
                 
-                const auto pk = max_jarvis_march(std::begin(q), std::end(q), point_on_hull, endpoint);
+                const auto pk = max_jarvis_march(std::begin(q), std::end(q), point_on_hull/*, endpoint*/);
+                
+                if (hull::equals(pk, pfirst)) {
+                    return first2;
+                }
                 
                 endpoint = point_on_hull;
-                point_on_hull = *pk;
-            
-                // I do not understand how to have a binary search maximize something!
-                //for (std::size_t i{}; i < r; i++) {
-                    //q[i] = std::lower_bound(P(i), lasts[i], [&point_on_hull, &endpoint](const auto& p1, const auto& p2) {
-                    //    return hull::compare_angles();
-                    //});
-                //}
-                
-                //point_on_hull = ??
-                
+                point_on_hull = pk;
             }
             
             // (5) Return "m was too small, try again"
