@@ -2,9 +2,6 @@
  * Unit tests for the angle facilities.
  */
 
-#ifndef angle_test_h
-#define angle_test_h
-
 #include "test_main.hpp"
 #include "../hull/angle.hpp"
 
@@ -286,5 +283,3 @@ static auto test_counterclockwise = add_test([] {
     assert(c2 > 0);
     assert(c3 < 0);
 });
-
-#endif

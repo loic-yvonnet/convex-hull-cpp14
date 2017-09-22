@@ -2,11 +2,6 @@
  * Unit tests for the point concept.
  */
 
-#ifndef point_concept_test_h
-#define point_concept_test_h
-
-#include <cassert>
-
 #include "test_main.hpp"
 #include "../hull/point_concept.hpp"
 
@@ -226,5 +221,3 @@ static auto test_y_free_function_for_array = add_test([] {
     // Act & Assert
     assert(hull::y(coord) == 2.);
 });
-
-#endif

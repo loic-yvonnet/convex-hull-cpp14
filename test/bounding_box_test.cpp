@@ -2,9 +2,6 @@
  * Unit tests for the convex hull algorithms.
  */
 
-#ifndef algorithms_test_h
-#define algorithms_test_h
-
 #include "test_main.hpp"
 #include "../hull/algorithms.hpp"
 #include "point2d.hpp"
@@ -31,5 +28,3 @@ static auto test_bounding_box = add_test([] {
     assert(target.size() == expected.size());
     assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
 });
-
-#endif

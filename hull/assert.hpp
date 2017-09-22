@@ -5,6 +5,8 @@
 #ifndef hull_assert_h
 #define hull_assert_h
 
+#include "point_concept.hpp"
+
 #include <iterator>
 
 namespace hull {

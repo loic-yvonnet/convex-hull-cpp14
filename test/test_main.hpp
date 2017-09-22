@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include <cassert>
 
 /**
  * The container of tests is a simple vector
@@ -21,10 +22,7 @@ using tests_t = std::vector<std::function<void()>>;
  * unique instance.
  * @return - the vector of unit tests.
  */
-tests_t& get_tests() {
-    static tests_t tests;
-    return tests;
-}
+tests_t& get_tests();
 
 /**
  * Add a new unit test to the unique vector of
@@ -47,9 +45,6 @@ bool add_test(F f) {
  * Run all the unit tests captured in the single instance
  * of the vector of tests.
  */
-void run_tests() {
-    const auto& tests = get_tests();
-    std::for_each(std::begin(tests), std::end(tests), [](const auto& f) { f(); });
-}
+void run_tests();
 
 #endif

@@ -17,7 +17,7 @@ struct point2d {
 /**
  * Equality operator for std::equal.
  */
-bool operator==(const point2d& p1, const point2d& p2) {
+inline bool operator==(const point2d& p1, const point2d& p2) {
     return hull::equals(p1, p2);
 }
 

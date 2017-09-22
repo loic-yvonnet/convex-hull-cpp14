@@ -2,9 +2,6 @@
  * Unit tests for Chan algorithm.
  */
 
-#ifndef chan_test_h
-#define chan_test_h
-
 #include "test_main.hpp"
 #include "../hull/algorithms.hpp"
 #include "point2d.hpp"
@@ -384,5 +381,3 @@ static auto test_convex_hull_compute_with_container_with_chan = add_test([] {
     assert(target.size() == expected.size());
     assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
 });
-
-#endif
