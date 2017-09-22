@@ -11,80 +11,80 @@
 
 #include <algorithm>
 
-namespace hull {
-    namespace algorithms {
-        /**
-         * Compute the convex hull of a container of points following
-         * the Monotone Chain algorithm. This algorithm does not work in-place, but
-         * it still modifies the input points (it sorts them by x-coordinates).
-         * Average time complexity: O(N * log(N)) where N is the number of
-         * points.
-         * Average space complexity: O(3 * N).
-         * Reference: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
-         * @param first - the random access iterator to the first point of the container.
-         * @param last - the random access iterator to the one-past last point of the container.
-         * @param first2 - the random access iterator to the first point of the destination container.
-         * @return - the iterator to the last element forming the convex hull of the
-         *           provided container of points.
-         */
-        template <typename RandomIt1, typename RandomIt2>
-        RandomIt2 monotone_chain(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
-            using point_type1 = typename std::iterator_traits<RandomIt1>::value_type;
-            using point_type2 = typename std::iterator_traits<RandomIt2>::value_type;
-            
-            static_assert(is_point_v<point_type1>(), "ill-formed point");
-            static_assert(is_point_v<point_type2>(), "ill-formed point");
-            static_assert(std::is_same<
-                              typename std::iterator_traits<RandomIt1>::iterator_category,
-                              std::random_access_iterator_tag
-                          >(), "random access iterator required");
-            static_assert(std::is_same<
-                              typename std::iterator_traits<RandomIt2>::iterator_category,
-                              std::random_access_iterator_tag
-                          >(), "random access iterator required");
-            
-            // Sort the points of P by x-coordinate (in case of a tie, sort by y-coordinate)
-            std::sort(first, last, [](const auto& p1, const auto& p2) {
-                return (x(p1) < x(p2) || (hull::equals(x(p1), x(p2)) && y(p1) < y(p2)));
-            });
-            
-            const auto N = std::distance(first, last);
-            if (N <= 1) {
-                return std::copy(first, last, first2);
-            }
-            
-            std::size_t k{};
-            
-            auto no_counter_clockwise = [&k, first, first2](auto i) {
-                return cross(*(first2 + (k - 2)), *(first2 + (k - 1)), *(first + i)) <= 0;
-            };
-            
-            auto copy = [&k, first, first2](auto i) {
-                *(first2 + k) = *(first + i);
-                k++;
-            };
-            
-            // Lower hull
-            for (int i{}; i < N; i++) {
-                while (k >= 2 && no_counter_clockwise(i)) {
-                    k--;
-                }
-                copy(i);
-            }
-            
-            // Upper hull
-            auto t = k + 1;
-            for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
-                while (k >= t && no_counter_clockwise(i)) {
-                    k--;
-                }
-                copy(i);
-            }
-            
-            return first2 + (k - 1);
+namespace hull::algorithms {
+    /**
+     * Compute the convex hull of a container of points following
+     * the Monotone Chain algorithm. This algorithm does not work in-place, but
+     * it still modifies the input points (it sorts them by x-coordinates).
+     * Average time complexity: O(N * log(N)) where N is the number of
+     * points.
+     * Average space complexity: O(3 * N).
+     * Reference: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           provided container of points.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    RandomIt2 monotone_chain(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        using point_type1 = typename std::iterator_traits<RandomIt1>::value_type;
+        using point_type2 = typename std::iterator_traits<RandomIt2>::value_type;
+        
+        static_assert(is_point_v<point_type1>(), "ill-formed point");
+        static_assert(is_point_v<point_type2>(), "ill-formed point");
+        static_assert(std::is_same<
+                          typename std::iterator_traits<RandomIt1>::iterator_category,
+                          std::random_access_iterator_tag
+                      >(), "random access iterator required");
+        static_assert(std::is_same<
+                          typename std::iterator_traits<RandomIt2>::iterator_category,
+                          std::random_access_iterator_tag
+                      >(), "random access iterator required");
+        
+        // Sort the points of P by x-coordinate (in case of a tie, sort by y-coordinate)
+        std::sort(first, last, [](const auto& p1, const auto& p2) {
+            return (x(p1) < x(p2) || (hull::equals(x(p1), x(p2)) && y(p1) < y(p2)));
+        });
+        
+        const auto N = std::distance(first, last);
+        if (N <= 1) {
+            return std::copy(first, last, first2);
         }
+        
+        std::size_t k{};
+        
+        auto no_counter_clockwise = [&k, first, first2](auto i) {
+            return cross(*(first2 + (k - 2)), *(first2 + (k - 1)), *(first + i)) <= 0;
+        };
+        
+        auto copy = [&k, first, first2](auto i) {
+            *(first2 + k) = *(first + i);
+            k++;
+        };
+        
+        // Lower hull
+        for (int i{}; i < N; i++) {
+            while (k >= 2 && no_counter_clockwise(i)) {
+                k--;
+            }
+            copy(i);
+        }
+        
+        // Upper hull
+        auto t = k + 1;
+        for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
+            while (k >= t && no_counter_clockwise(i)) {
+                k--;
+            }
+            copy(i);
+        }
+        
+        return first2 + (k - 1);
     }
-    
+}
+
+namespace hull {
     /**
      * Compile-time enumeration to choose the
      * algorithm thanks to a policy approach.
