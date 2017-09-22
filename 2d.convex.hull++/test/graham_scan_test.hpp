@@ -5,6 +5,13 @@
 #ifndef graham_scan_test_h
 #define graham_scan_test_h
 
+#include "test_main.hpp"
+#include "../hull/algorithms.hpp"
+#include "point2d.hpp"
+
+#include <array>
+#include <vector>
+
 static auto test_sort_by_polar_angles = add_test([] {
     // Arrange
     auto points = std::array<point2d, 10>{{
@@ -335,6 +342,50 @@ static auto test_graham_scan_more_duplicate_points = add_test([] {
     // Assert
     assert(std::distance(std::begin(points), last) == expected.size());
     assert(std::equal(std::begin(points), last, std::begin(expected)));
+});
+
+static auto test_convex_hull_compute_with_graham = add_test([] {
+    // Arrange
+    auto points = std::array<point2d, 10>{{
+        {13, 5}, {12, 8}, {10, 3}, {7, 7},
+        {9, 6}, {4, 0}, {7, 1}, {7, 4},
+        {3, 3}, {1, 1}
+    }};
+    const auto expected = std::array<point2d, 6>{{
+        {4, 0}, {7, 1}, {13, 5},
+        {12, 8}, {7, 7}, {1, 1}
+    }};
+    std::vector<point2d> target(points.size());
+    
+    // Act
+    const auto last = hull::compute_convex_hull(hull::choice::graham_scan,
+                                                std::begin(points), std::end(points), std::begin(target));
+    
+    // Assert
+    assert(std::distance(std::begin(target), last) == expected.size());
+    assert(std::equal(std::begin(target), last, std::begin(expected)));
+});
+
+static auto test_convex_hull_compute_with_policy = add_test([] {
+    // Arrange
+    auto points = std::array<point2d, 10>{{
+        {13, 5}, {12, 8}, {10, 3}, {7, 7},
+        {9, 6}, {4, 0}, {7, 1}, {7, 4},
+        {3, 3}, {1, 1}
+    }};
+    const auto expected = std::array<point2d, 6>{{
+        {4, 0}, {7, 1}, {13, 5},
+        {12, 8}, {7, 7}, {1, 1}
+    }};
+    std::vector<point2d> target(points.size());
+    
+    // Act
+    const auto last = hull::compute_convex_hull<hull::graham_scan_t>(std::begin(points), std::end(points),
+                                                                     std::begin(target));
+    
+    // Assert
+    assert(std::distance(std::begin(target), last) == expected.size());
+    assert(std::equal(std::begin(target), last, std::begin(expected)));
 });
 
 #endif

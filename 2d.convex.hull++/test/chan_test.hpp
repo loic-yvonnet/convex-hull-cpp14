@@ -5,6 +5,13 @@
 #ifndef chan_test_h
 #define chan_test_h
 
+#include "test_main.hpp"
+#include "../hull/algorithms.hpp"
+#include "point2d.hpp"
+
+#include <array>
+#include <vector>
+
 static auto test_chan_impl = add_test([] {
     // Arrange
     auto points = std::array<point2d, 10>{{
@@ -332,6 +339,49 @@ static auto test_chan_more_duplicate_points = add_test([] {
     
     // Assert
     assert(std::distance(std::begin(target), std::end(target)) == expected.size());
+    assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
+});
+
+static auto test_convex_hull_compute_with_chan = add_test([] {
+    // Arrange
+    auto points = std::array<point2d, 10>{{
+        {13, 5}, {12, 8}, {10, 3}, {7, 7},
+        {9, 6}, {4, 0}, {7, 1}, {7, 4},
+        {3, 3}, {1, 1}
+    }};
+    const auto expected = std::array<point2d, 6>{{
+        {4, 0}, {1, 1}, {7, 7},
+        {12, 8}, {13, 5}, {7, 1}
+    }};
+    std::vector<point2d> target;
+    
+    // Act
+    hull::compute_convex_hull(hull::choice::chan,
+                              std::begin(points), std::end(points), std::back_inserter(target));
+    
+    // Assert
+    assert(std::distance(std::begin(target), std::end(target)) == expected.size());
+    assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
+});
+
+static auto test_convex_hull_compute_with_container_with_chan = add_test([] {
+    // Arrange
+    const auto points = std::array<point2d, 10>{{
+        {13, 5}, {12, 8}, {10, 3}, {7, 7},
+        {9, 6}, {4, 0}, {7, 1}, {7, 4},
+        {3, 3}, {1, 1}
+    }};
+    const auto expected = std::array<point2d, 6>{{
+        {4, 0}, {1, 1}, {7, 7},
+        {12, 8}, {13, 5}, {7, 1}
+    }};
+    std::vector<point2d> target;
+    
+    // Act
+    hull::convex::compute<hull::chan_t>(points, target);
+    
+    // Assert
+    assert(target.size() == expected.size());
     assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
 });
 
