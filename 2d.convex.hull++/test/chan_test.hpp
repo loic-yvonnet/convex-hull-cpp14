@@ -19,7 +19,7 @@ static auto test_chan_impl = add_test([] {
     std::vector<point2d> target;
     
     // Act
-    const auto last = hull::algorithms::chan_impl(std::begin(points), std::end(points), std::back_inserter(target), 6);
+    const auto last = hull::algorithms::details::chan_impl(std::begin(points), std::end(points), std::back_inserter(target), 6);
     
     // Assert
     assert(last);
@@ -36,7 +36,7 @@ static auto test_chan_impl_with_m_too_low = add_test([] {
     std::vector<point2d> target;
     
     // Act
-    const auto last = hull::algorithms::chan_impl(std::begin(points), std::end(points), std::back_inserter(target), 5);
+    const auto last = hull::algorithms::details::chan_impl(std::begin(points), std::end(points), std::back_inserter(target), 5);
     
     // Assert
     assert(!last);
