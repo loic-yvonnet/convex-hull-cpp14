@@ -7,6 +7,7 @@
 #define chan_algorithm_h
 
 #include "angle.hpp"
+#include "assert.hpp"
 #include "graham_scan.hpp"
 #include "jarvis_march.hpp"
 #include "point_concept.hpp"
@@ -105,13 +106,7 @@ namespace hull::algorithms {
      */
     template <typename RandomIt, typename OutputIt>
     OutputIt chan(RandomIt first, RandomIt last, OutputIt first2) {
-        using point_type = typename std::iterator_traits<RandomIt>::value_type;
-        
-        static_assert(is_point_v<point_type>(), "ill-formed point");
-        static_assert(std::is_same<
-                          typename std::iterator_traits<RandomIt>::iterator_category,
-                          std::random_access_iterator_tag
-                      >(), "random access iterator required");
+        static_assert_is_random_access_iterator_to_point<RandomIt>();
         
         if (first == last) {
             return first2;
@@ -120,13 +115,14 @@ namespace hull::algorithms {
         // (1) For t = 1; 2; 3... do:
         //     (a) Let m = min(2^(2^t),n)
         //     (b) Invoke PartialHull(P, m), returning the result in L.
-        //     (c) If L != ``try again'' then return L.
+        //     (c) If L != "try again" then return L.
+        using point_type = typename std::iterator_traits<RandomIt>::value_type;
         const std::size_t n = std::distance(first, last);
         std::vector<point_type> intermediary(n);
         
         for (std::size_t t{1}; ; t++) {
-            const std::size_t pow = 1 << (1 << t);
-            const auto m = std::min(pow, n); // warning: may overflow
+            const std::size_t pow = 1 << (1 << t); // warning: may overflow
+            const auto m = std::min(pow, n);
             const auto last_intermediary = details::chan_impl(first, last, std::begin(intermediary), m);
             if (last_intermediary) {
                 return std::move(std::begin(intermediary), *last_intermediary, first2);

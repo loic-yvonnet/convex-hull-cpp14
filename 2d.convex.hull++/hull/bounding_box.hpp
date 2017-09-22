@@ -6,6 +6,7 @@
 #ifndef bounding_box_h
 #define bounding_box_h
 
+#include "assert.hpp"
 #include "point_concept.hpp"
 
 #include <algorithm>
@@ -25,15 +26,13 @@ namespace hull::algorithms {
      * @return - the iterator to the last element forming the bounding box of the
      *           provided container of points.
      */
-    template <typename ForwardIt1, typename ForwardIt2>
-    ForwardIt2 bounding_box(ForwardIt1 first, ForwardIt1 last, ForwardIt2 first2) {
-        using point_type = typename std::iterator_traits<ForwardIt1>::value_type;
+    template <typename ForwardIt, typename OutputIt>
+    OutputIt bounding_box(ForwardIt first, ForwardIt last, OutputIt first2) {
+        static_assert_is_forward_iterator_to_point<ForwardIt>();
         
-        static_assert(is_point_v<point_type>(), "ill-formed point");
-        static_assert(std::is_base_of<
-                          std::forward_iterator_tag,
-                          typename std::iterator_traits<ForwardIt1>::iterator_category
-                      >(), "forward access iterator required");
+        if (first == last) {
+            return first2;
+        }
         
         auto less_x = [](const auto& p1, const auto& p2) {
             return x(p1) < x(p2);
@@ -45,10 +44,12 @@ namespace hull::algorithms {
         const auto [min_x, max_x] = std::minmax_element(first, last, less_x);
         const auto [min_y, max_y] = std::minmax_element(first, last, less_y);
         
+        using point_type = typename std::iterator_traits<ForwardIt>::value_type;
+        
         *first2++ = point_type{x(*min_x), y(*min_y)};
         *first2++ = point_type{x(*max_x), y(*min_y)};
         *first2++ = point_type{x(*max_x), y(*max_y)};
-        *first2   = point_type{x(*min_x), y(*max_y)};
+        *first2++ = point_type{x(*min_x), y(*max_y)};
         
         return first2;
     }

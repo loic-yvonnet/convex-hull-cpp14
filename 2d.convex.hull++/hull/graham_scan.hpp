@@ -7,6 +7,7 @@
 #define graham_scan_h
 
 #include "angle.hpp"
+#include "assert.hpp"
 #include "point_concept.hpp"
 
 #include <algorithm>
@@ -20,11 +21,7 @@ namespace hull::algorithms::details {
      */
     template <typename ForwardIt>
     void sort_by_polar_angles(ForwardIt first, ForwardIt last) {
-        static_assert(is_point_v<typename std::iterator_traits<ForwardIt>::value_type>(), "ill-formed point");
-        static_assert(std::is_base_of<
-                          std::forward_iterator_tag,
-                          typename std::iterator_traits<ForwardIt>::iterator_category
-                      >(), "forward access iterator required");
+        static_assert_is_forward_iterator_to_point<ForwardIt>();
         
         if (std::distance(first, last) < 2) {
             return ;
@@ -122,11 +119,7 @@ namespace hull::algorithms {
      */
     template <typename RandomIt>
     RandomIt graham_scan(RandomIt first, RandomIt last) {
-        static_assert(is_point_v<typename std::iterator_traits<RandomIt>::value_type>(), "ill-formed point");
-        static_assert(std::is_same<
-                      typename std::iterator_traits<RandomIt>::iterator_category,
-                      std::random_access_iterator_tag
-                      >(), "random access iterator required");
+        static_assert_is_random_access_iterator_to_point<RandomIt>();
         
         details::sort_by_polar_angles(first, last);
         

@@ -7,6 +7,7 @@
 #define monotone_chain_h
 
 #include "angle.hpp"
+#include "assert.hpp"
 #include "point_concept.hpp"
 
 #include <algorithm>
@@ -28,19 +29,8 @@ namespace hull::algorithms {
      */
     template <typename RandomIt1, typename RandomIt2>
     RandomIt2 monotone_chain(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
-        using point_type1 = typename std::iterator_traits<RandomIt1>::value_type;
-        using point_type2 = typename std::iterator_traits<RandomIt2>::value_type;
-        
-        static_assert(is_point_v<point_type1>(), "ill-formed point");
-        static_assert(is_point_v<point_type2>(), "ill-formed point");
-        static_assert(std::is_same<
-                          typename std::iterator_traits<RandomIt1>::iterator_category,
-                          std::random_access_iterator_tag
-                      >(), "random access iterator required");
-        static_assert(std::is_same<
-                          typename std::iterator_traits<RandomIt2>::iterator_category,
-                          std::random_access_iterator_tag
-                      >(), "random access iterator required");
+        static_assert_is_random_access_iterator_to_point<RandomIt1>();
+        static_assert_is_random_access_iterator_to_point<RandomIt2>();
         
         // Sort the points of P by x-coordinate (in case of a tie, sort by y-coordinate)
         std::sort(first, last, [](const auto& p1, const auto& p2) {

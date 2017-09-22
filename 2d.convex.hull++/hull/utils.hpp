@@ -6,9 +6,11 @@
 #ifndef utils_h
 #define utils_h
 
+#include "assert.hpp"
+
 #include <limits>
 
-namespace hull {
+namespace hull {    
     /**
      * Floating-point computations involve numerical errors
      * that must be taken into account.
@@ -65,7 +67,7 @@ namespace hull {
      */
     template <typename TPoint>
     constexpr auto square_norm(const TPoint& p) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         return x(p) * x(p) + y(p) * y(p);
     }
     
@@ -77,7 +79,7 @@ namespace hull {
      */
     template <typename TPoint>
     constexpr TPoint operator-(const TPoint& p1, const TPoint& p2) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         const auto xp = x(p1) - x(p2);
         const auto yp = y(p1) - y(p2);
         return TPoint{xp, yp};

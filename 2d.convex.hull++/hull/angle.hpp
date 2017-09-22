@@ -10,6 +10,7 @@
 #ifndef angle_h
 #define angle_h
 
+#include "assert.hpp"
 #include "point_concept.hpp"
 #include "utils.hpp"
 
@@ -28,7 +29,7 @@ namespace hull {
      */
     template <typename TPoint>
     auto get_angle_with_j(const TPoint& p) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         return std::atan2(y(p), x(p));
     }
     
@@ -41,7 +42,7 @@ namespace hull {
      */
     template <typename TPoint>
     auto get_angle_with_j(const TPoint& p, const TPoint& origin) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         return std::atan2(y(p) - y(origin), x(p) - x(origin));
     }
     
@@ -55,7 +56,7 @@ namespace hull {
      */
     template <typename TPoint>
     bool slow_compare_angles(const TPoint& p1, const TPoint& p2) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         const auto a1 = get_angle_with_j(p1);
         const auto a2 = get_angle_with_j(p2);
         return equals(a1, a2) ? square_norm(p1) < square_norm(p2) : a1 < a2;
@@ -70,7 +71,7 @@ namespace hull {
      */
     template <typename TPoint>
     bool slow_compare_angles(const TPoint& p1, const TPoint& p2, const TPoint& origin) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         const auto a1 = get_angle_with_j(p1, origin);
         const auto a2 = get_angle_with_j(p2, origin);
         return equals(a1, a2) ? square_norm(p1 - origin) < square_norm(p2 - origin) : a1 < a2;
@@ -89,7 +90,7 @@ namespace hull {
      */
     template <typename TPoint>
     constexpr bool compare_angles(const TPoint& p1, const TPoint& p2) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         
         using value_type = decltype(x(p1));
         value_type zero{};
@@ -126,7 +127,7 @@ namespace hull {
      */
     template <typename TPoint>
     constexpr bool compare_angles(const TPoint& p1, const TPoint& p2, const TPoint& origin) {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         return compare_angles(p1 - origin, p2 - origin);
     }
     
@@ -146,7 +147,7 @@ namespace hull {
     template <typename TPoint>
     auto cross(const TPoint& p1, const TPoint& p2, const TPoint& p3)
     {
-        static_assert(is_point_v<TPoint>(), "ill-formed point");
+        static_assert_is_point<TPoint>();
         return (x(p2) - x(p1)) * (y(p3) - y(p1)) - (y(p2) - y(p1)) * (x(p3) - x(p1));
     }
 }
