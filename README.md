@@ -1,6 +1,6 @@
 <h1>Convex Hull Algorithms in C++14</h1>
 
-This small library provides a mono-threaded implementation for Graham Scan, Monotone Chain and Jarvis algorithms for the computation of the convex hull of a set of points in the 2D space.
+This small library provides a mono-threaded implementation for Graham Scan, Monotone Chain, Jarvis March and Chan's algorithms for the computation of the convex hull of a set of points in the 2D space.
 
 <h2>Build prerequisites</h2>
 
