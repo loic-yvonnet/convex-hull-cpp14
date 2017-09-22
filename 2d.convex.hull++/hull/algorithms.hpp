@@ -494,21 +494,25 @@ namespace hull {
      * @param graham_scan_t - Graham Scan algorithm.
      * @param monotone_chain_t - Monotone Chain algorithm.
      * @param jarvis_march_t - Jarvis March algorithm.
+     * @param chan_t - Chan's algorithm.
      */
     struct graham_scan_t {};
     struct monotone_chain_t {};
     struct jarvis_march_t {};
+    struct chan_t {};
     
     /**
      * Algorithms policies to choose an overload.
      * @param graham_scan - Graham Scan algorithm.
      * @param monotone_chain - Monotone Chain algorithm.
      * @param jarvis_march - Jarvis March algorithm.
+     * @param chan - Chan's algorithm.
      */
     namespace choice {
         static constexpr const graham_scan_t graham_scan{};
         static constexpr const monotone_chain_t monotone_chain{};
         static constexpr const jarvis_march_t jarvis_march{};
+        static constexpr const chan_t chan{};
     }
     
     /**
@@ -555,7 +559,7 @@ namespace hull {
     /**
      * Overload of iterator-based convex hull computation for Jarvis March.
      * Average time complexity: O(N * H) where N is the number of input
-     * points and H is the number of point on the convex hull.
+     * points and H is the number of points on the convex hull.
      * Average space complexity: O(2 * N).
      * It is unfortunately not possible to use a std::back_insert_iterator.
      * @param first - the random access iterator to the first point of the container.
@@ -573,6 +577,22 @@ namespace hull {
     }
     
     /**
+     * Overload of iterator-based convex hull computation for Chan.
+     * Average time complexity: O(N * log(H)) where N is the number of input
+     * points and H is the number of points on the convex hull.
+     * Average space complexity: O(3 * N).
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           destination container of points.
+     */
+    template <typename RandomIt, typename OutputIt>
+    auto compute_convex_hull(chan_t policy, RandomIt first, RandomIt last, OutputIt first2) {
+        return algorithms::chan(first, last, first2);
+    }
+    
+    /**
      * Policy-based approach to call one of the previous functions.
      */
     template <typename Policy, typename RandomIt1, typename RandomIt2>
@@ -581,8 +601,11 @@ namespace hull {
     }
     
     /**
-     * The default policy is Graham Scan because it provides a better
-     * average space complexity.
+     * The default policy is Graham Scan for the moment. A benchmark
+     * is required between Graham Scan and Chan's algorithm. In theory,
+     * Chan's algorithm is better. However, the practical implementation
+     * of Chan's algorithm requires allocations and more space. Therefore,
+     * on current computer architectures, Graham Scan is likely faster.
      */
     template <typename RandomIt1, typename RandomIt2>
     auto compute_convex_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
@@ -645,6 +668,19 @@ namespace hull {
         }
         
         /**
+         * Overload of container-based convex hull computation for Chan.
+         * Average time complexity: O(N * log(H)) where N is the number of input
+         * points and H is the number of points on the convex hull.
+         * Average space complexity: O(3 * N).
+         * @param c1 - the input container.
+         * @param c2 - the destination container.
+         */
+        template <typename TContainer1, typename TContainer2>
+        void compute(chan_t policy, TContainer1 c1, TContainer2& c2) {
+            hull::algorithms::chan(std::begin(c1), std::end(c1), std::back_inserter(c2));
+        }
+        
+        /**
          * Policy-based approach to call one of the previous functions.
          */
         template <typename Policy, typename TContainer1, typename TContainer2>
@@ -653,8 +689,7 @@ namespace hull {
         }
         
         /**
-         * The default policy is Graham Scan because it provides a better
-         * average space complexity.
+         * The default policy is Graham Scan.
          */
         template <typename TContainer1, typename TContainer2>
         void compute(const TContainer1& c1, TContainer2& c2) {
