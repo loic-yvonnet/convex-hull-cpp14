@@ -1,10 +1,20 @@
 <h1>Convex Hull Algorithms in C++14</h1>
 
-This small library provides a mono-threaded implementation for Graham Scan, Monotone Chain and Jarvis algorithms for the computation of the convex hull of a set of points in the 2D space.
+This small library provides a mono-threaded implementation for Graham Scan, Monotone Chain, Jarvis March and Chan's algorithms for the computation of the convex hull of a set of points in the 2D space.
 
 <h2>Build prerequisites</h2>
 
-The implementation is written in C++14 and requires a fully conformant C++14 compiler. The code compiles and runs successfully with clang-700.1.81 on Mac OS X 10.2. It should compile with most recent versions of Clang and GCC.
+The implementation is written in C++14 and requires a fully conformant C++14 compiler. Some features of C++17 are also used, but C++17 is not very different from C++14 so it should be easy to backport to C++14 if required.
+
+The code compiles and runs successfully with clang-900.0.37 on Mac OS X 10.2. It should compile with most recent versions of Clang and GCC.
+
+It also requires CMake 3.9:
+
+```
+cmake .
+make
+test/hull_unit_tests
+```
 
 <h2>Usage</h2>
 
@@ -91,11 +101,11 @@ For all these algorithms:
 
 Specificities:
 
-(1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code> or <code>hull::choice::monotone_chain</code>.
+(1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code>, <code>hull::choice::monotone_chain</code>, <code>hull::choice::jarvis_march</code> or <code>hull::choice::chan</code>.
 
-(2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code> or <code>hull::monotone_chain_t</code>.
+(2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code>, <code>hull::monotone_chain_t</code>, <code>hull::jarvis_march_t</code> or <code>hull::chan_t</code>.
 
-(3) The default algorithm is Graham Scan, because it has a better average space complexity.
+(3) The default algorithm is Graham Scan.
 
 <h4>Container-based algorithms</h4>
 
@@ -120,21 +130,22 @@ For all these algorithms:
 
 Specificities:
 
-(1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code> or <code>hull::choice::monotone_chain</code>.
+(1) The first parameter is a policy for the choice of the algorithm. It may be either <code>hull::choice::graham_scan</code>, <code>hull::choice::monotone_chain</code>, <code>hull::choice::jarvis_march</code> or <code>hull::choice::chan</code>.
 
-(2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code> or <code>hull::monotone_chain_t</code>.
+(2) The policy is passed as a template parameter. It may be either <code>hull::graham_scan_t</code>, <code>hull::monotone_chain_t</code>, <code>hull::jarvis_march_t</code> or <code>hull::chan_t</code>.
 
-(3) The default algorithm is Graham Scan, because it has a better average space complexity.
+(3) The default algorithm is Graham Scan.
 
 <h2>Required enhancements</h2>
 
 The following enhancements would be the next natural steps for this library:
 <ul>
-<li>Implement the Jarvis March algorithm.</li>
-<li>Implement Chan's algorithm.</li>
+<li>Implement Quickhull.</li>
 <li>Implement - or integrate an existing - tiny executor facility (thread pool + task queue).</li>
-<li>Implement a parallel version of Chan's algorithm thanks to this executor.</li>
+<li>Implement a parallel version of Quickhull thanks to this executor.</li>
+<li>Perform a benchmark between the implementations of Graham Scan, Monotone Chain, Jarvis March and Chan's algorithm.</li>
+<li>Perform a benchmark with OpenCV and boost::geometry.</li>
+<li>Implement a GPGPU version of Quickhull with OpenCL.</li>
 <li>Use Bandit for unit testing instead of a home-made library.</li>
-<li>Use C++17 features when compilers support it. For example: if constexpr.</li>
 <li>In C++20, everything should be rewritten with concepts, modules, ranges and reflection.</li>
 </ul>
