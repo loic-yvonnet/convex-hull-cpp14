@@ -69,7 +69,7 @@ namespace hull::algorithms::details {
         
         // Let endpoint = (-Inf; 0)
         using point_type = decltype(point_on_hull);
-        using coord_type = decltype(x(std::declval<point_type>()));
+        using coord_type = std::remove_reference_t<decltype(x(std::declval<point_type>()))>;
         auto endpoint = point_type{std::numeric_limits<coord_type>::lowest(), static_cast<coord_type>(0)};
         
         // (4) For k = 1 to m do:

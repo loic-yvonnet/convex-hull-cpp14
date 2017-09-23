@@ -51,3 +51,47 @@ static auto test_convex_hull_compute_with_container = add_test([] {
     assert(target.size() == expected.size());
     assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
 });
+
+static auto test_convex_hull_compute_with_pair = add_test([] {
+    // Arrange
+    using ptype = std::pair<int, int>;
+    const auto points = std::array<ptype, 10>{{
+        {13, 5}, {12, 8}, {10, 3}, {7, 7},
+        {9, 6}, {4, 0}, {7, 1}, {7, 4},
+        {3, 3}, {1, 1}
+    }};
+    const auto expected = std::array<ptype, 6>{{
+        {4, 0}, {7, 1}, {13, 5},
+        {12, 8}, {7, 7}, {1, 1}
+    }};
+    std::vector<ptype> target;
+    
+    // Act
+    hull::convex::compute(points, target);
+    
+    // Assert
+    assert(target.size() == expected.size());
+    assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
+});
+
+static auto test_convex_hull_compute_with_tuple = add_test([] {
+    // Arrange
+    using ptype = std::tuple<long, long>;
+    const auto points = std::array<ptype, 10>{{
+        {13l, 5l}, {12l, 8l}, {10l, 3l}, {7l, 7l},
+        {9l, 6l}, {4l, 0l}, {7l, 1l}, {7l, 4l},
+        {3l, 3l}, {1l, 1l}
+    }};
+    const auto expected = std::array<ptype, 6>{{
+        {4l, 0l}, {7l, 1l}, {13l, 5l},
+        {12l, 8l}, {7l, 7l}, {1l, 1l}
+    }};
+    std::vector<ptype> target;
+    
+    // Act
+    hull::convex::compute(points, target);
+    
+    // Assert
+    assert(target.size() == expected.size());
+    assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
+});
