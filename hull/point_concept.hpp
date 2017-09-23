@@ -15,11 +15,99 @@
 #ifndef point_concept_h
 #define point_concept_h
 
-#include <type_traits>
-
 #include "reflection.hpp"
 
+#include <type_traits>
+#include <tuple>
+#include <utility>
+
 namespace hull {
+    namespace details {
+        /**
+         * There is no definition of tuple_size for non-tuple types and we need one so
+         * we wrap the definition of tuple_size. The default implementation returns 0.
+         */
+        template <typename TTuple>
+        struct tuple_size {
+            static constexpr std::size_t value{};
+        };
+        
+        template <typename... TArgs>
+        struct tuple_size<std::tuple<TArgs...>>: std::tuple_size<std::tuple<TArgs...>> {};
+        
+        template <typename T, typename U>
+        struct tuple_size<std::pair<T, U>>: std::tuple_size<std::pair<T, U>> {};
+        
+        template <typename TTuple>
+        constexpr auto tuple_size_v = tuple_size<TTuple>::value;
+        
+        /**
+         * Same thing for tuple_element, which has no general definition. We provide one
+         * here which returns void.
+         */
+        template <std::size_t I, typename TTuple>
+        struct tuple_element {
+            using type = void;
+        };
+        
+        template <std::size_t I, typename... TArgs>
+        struct tuple_element<I, std::tuple<TArgs...>>: std::tuple_element<I, std::tuple<TArgs...>> {};
+        
+        template <std::size_t I, typename T>
+        struct tuple_element<I, std::pair<T, T>>: std::tuple_element<I, std::pair<T, T>> {};
+        
+        template <std::size_t I, typename... TArgs>
+        using tuple_element_t = typename tuple_element<I, TArgs...>::type;
+        
+        /**
+         * Type trait to determine whether a given type is a pair. Note
+         * that this implementation also checks that the 2 inner types
+         * of the pair are the same.
+         */
+        template <typename TPair, typename T, typename U>
+        struct is_pair: std::false_type {};
+        
+        template <typename T>
+        struct is_pair<std::pair<T, T>, T, T>: std::true_type {};
+        
+        template <typename TPair>
+        constexpr bool is_pair_v() {
+            if constexpr(tuple_size_v<TPair> != 2) {
+                return false;
+            }
+            else {
+                using T = tuple_element_t<0, TPair>;
+                using U = tuple_element_t<1, TPair>;
+                return is_pair<TPair, T, U>::value;
+            }
+        }
+        
+        /**
+         * Type trait to determine whether a given type is a tuple. Note
+         * that this implementation also checks that the first 2 inner
+         * types of the tuple are the same.
+         */
+        template <typename TTuple, typename... TArgs>
+        struct is_tuple: std::false_type {};
+        
+        template <typename T, typename... TOthers>
+        struct is_tuple<std::tuple<T, T, TOthers...>, T, T, TOthers...>: std::true_type {};
+        
+        template <typename TTuple, std::size_t... Is>
+        constexpr bool is_tuple_v_impl(std::index_sequence<Is...>) {
+            return is_tuple<TTuple, tuple_element_t<Is, TTuple>...>::value;
+        }
+        
+        template <typename TTuple, typename... TArgs>
+        constexpr bool is_tuple_v() {
+            constexpr auto size = tuple_size_v<TTuple>;
+            
+            using indices = std::make_index_sequence<size>;
+            
+            return is_tuple_v_impl<TTuple>(indices{});
+        }
+    }
+    
     /**
      * Generation of type traits to introspect client point
      * definition.
@@ -110,6 +198,20 @@ namespace hull {
     struct is_point<TPoint, std::enable_if_t<std::is_array<TPoint>::value && std::extent<TPoint>::value >= 2>>: std::true_type {};
     
     /**
+     * If the type TPoint is a pair of the same type T, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<details::is_pair_v<TPoint>()>>: std::true_type {};
+    
+    /**
+     * If the type TPoint is a tuple whose first 2 types are the same, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<details::is_tuple_v<TPoint>()>>: std::true_type {};
+    
+    /**
      * Helper compile-time function to tell whether a type
      * TPoint fit the point concept requirements.
      */
@@ -169,6 +271,16 @@ namespace hull {
     }
     
     /**
+     * Returns the x coordinate of a point.
+     * @param p - the point whose x coordinate is requested.
+     * @return - the x coordinate.
+     */
+    template <typename TPoint>
+    auto x(const TPoint& p) -> decltype(std::get<0>(p)) {
+        return std::get<0>(p);
+    }
+    
+    /**
      * Returns the y coordinate of a point.
      * @param p - the point whose y coordinate is requested.
      * @return - the y coordinate.
@@ -216,6 +328,16 @@ namespace hull {
     template <typename TPoint>
     auto y(const TPoint& p) -> decltype(p[1]) {
         return p[1];
+    }
+    
+    /**
+     * Returns the y coordinate of a point.
+     * @param p - the point whose y coordinate is requested.
+     * @return - the y coordinate.
+     */
+    template <typename TPoint>
+    auto y(const TPoint& p) -> decltype(std::get<1>(p)) {
+        return std::get<1>(p);
     }
 }
 

@@ -13,4 +13,3 @@ int main() {
     run_tests();
     std::cout << "Test suite: OK" << std::endl;
 }
-

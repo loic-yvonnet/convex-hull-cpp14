@@ -5,6 +5,8 @@
 #include "test_main.hpp"
 #include "../hull/point_concept.hpp"
 
+#include <array>
+
 static auto test_has_member_x = add_test([] {
     // Arrange
     struct p1 {
@@ -15,8 +17,8 @@ static auto test_has_member_x = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::has_member_x<p1>::value == 1);
-    assert(hull::has_member_x<p2>::value == 0);
+    assert(hull::has_member_x<p1>::value == true);
+    assert(hull::has_member_x<p2>::value == false);
 });
 
 static auto test_valid_point_lower_case = add_test([] {
@@ -27,7 +29,7 @@ static auto test_valid_point_lower_case = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
 });
 
 static auto test_valid_point_upper_case = add_test([] {
@@ -38,7 +40,7 @@ static auto test_valid_point_upper_case = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
 });
 
 static auto test_valid_point_method_accessor_lower_case = add_test([] {
@@ -53,7 +55,7 @@ static auto test_valid_point_method_accessor_lower_case = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
 });
 
 static auto test_valid_point_method_accessor_upper_case = add_test([] {
@@ -68,7 +70,7 @@ static auto test_valid_point_method_accessor_upper_case = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
 });
 
 static auto test_valid_point_array_size_2 = add_test([] {
@@ -76,7 +78,7 @@ static auto test_valid_point_array_size_2 = add_test([] {
     using p = int[2];
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
 });
 
 static auto test_valid_point_array_size_3 = add_test([] {
@@ -84,7 +86,63 @@ static auto test_valid_point_array_size_3 = add_test([] {
     using p = int[3];
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 1);
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_valid_point_pair = add_test([] {
+    // Arrange
+    using p = std::pair<int, int>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_invalid_point_pair = add_test([] {
+    // Arrange
+    using p = std::pair<int, float>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == false);
+});
+
+static auto test_valid_point_tuple = add_test([] {
+    // Arrange
+    using p = std::tuple<float, float>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_valid_point_other_tuple = add_test([] {
+    // Arrange
+    using p = std::tuple<short, short, char, double, std::pair<int, int>>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_invalid_point_tuple = add_test([] {
+    // Arrange
+    using p = std::tuple<int, float>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == false);
+});
+
+static auto test_invalid_point_other_tuple = add_test([] {
+    // Arrange
+    using p = std::tuple<short>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == false);
+});
+
+static auto test_invalid_point_another_tuple = add_test([] {
+    // Arrange
+    using p = std::tuple<char, short, int, long>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_missing_y_coordinate = add_test([] {
@@ -94,7 +152,7 @@ static auto test_missing_y_coordinate = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_missing_x_coordinate = add_test([] {
@@ -104,7 +162,7 @@ static auto test_missing_x_coordinate = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_missing_coordinates = add_test([] {
@@ -113,7 +171,7 @@ static auto test_missing_coordinates = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_case_mismatch = add_test([] {
@@ -128,7 +186,7 @@ static auto test_case_mismatch = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_missing_y_method = add_test([] {
@@ -141,7 +199,7 @@ static auto test_missing_y_method = add_test([] {
     };
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_too_small_array = add_test([] {
@@ -149,7 +207,7 @@ static auto test_too_small_array = add_test([] {
     using p = float[1];
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_a_value_is_not_a_point = add_test([] {
@@ -157,7 +215,7 @@ static auto test_a_value_is_not_a_point = add_test([] {
     using p = float;
     
     // Act & Assert
-    assert(hull::is_point<p>::value == 0);
+    assert(hull::is_point<p>::value == false);
 });
 
 static auto test_x_free_function = add_test([] {
@@ -220,4 +278,36 @@ static auto test_y_free_function_for_array = add_test([] {
     
     // Act & Assert
     assert(hull::y(coord) == 2.);
+});
+
+static auto test_x_free_function_for_pair = add_test([] {
+    // Arrange
+    std::pair<int, int> p{};
+    
+    // Act & Assert
+    assert(hull::x(p) == 0);
+});
+
+static auto test_y_free_function_for_pair = add_test([] {
+    // Arrange
+    std::pair<double, double> p{2., 4.};
+    
+    // Act & Assert
+    assert(hull::y(p) == 4.);
+});
+
+static auto test_x_free_function_for_tuple = add_test([] {
+    // Arrange
+    std::tuple<int, int> p{};
+    
+    // Act & Assert
+    assert(hull::x(p) == 0);
+});
+
+static auto test_y_free_function_for_tuple = add_test([] {
+    // Arrange
+    std::tuple<double, double, char> p{2., 4.};
+    
+    // Act & Assert
+    assert(hull::y(p) == 4.);
 });
