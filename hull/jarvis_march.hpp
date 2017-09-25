@@ -88,11 +88,9 @@ namespace hull::algorithms {
         }
         
         // leftmost point
-        const auto min_x = std::min_element(first, last, [](const auto& p1, const auto& p2) {
+        auto point_on_hull = *std::min_element(first, last, [](const auto& p1, const auto& p2) {
             return x(p1) < x(p2) || (x(p1) == x(p2) && y(p1) > y(p2));
         });
-        auto point_on_hull = *min_x;
-        decltype(point_on_hull) endpoint;
         
         // Repeat until wrapped around to first hull point
         std::size_t i{};
