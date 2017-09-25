@@ -46,10 +46,10 @@ namespace hull::algorithms {
         
         using point_type = typename std::iterator_traits<ForwardIt>::value_type;
         
-        *first2++ = point_type{x(*min_x), y(*min_y)};
-        *first2++ = point_type{x(*max_x), y(*min_y)};
-        *first2++ = point_type{x(*max_x), y(*max_y)};
-        *first2++ = point_type{x(*min_x), y(*max_y)};
+        *first2++ = make_point<point_type>(x(*min_x), y(*min_y));
+        *first2++ = make_point<point_type>(x(*max_x), y(*min_y));
+        *first2++ = make_point<point_type>(x(*max_x), y(*max_y));
+        *first2++ = make_point<point_type>(x(*min_x), y(*max_y));
         
         return first2;
     }
