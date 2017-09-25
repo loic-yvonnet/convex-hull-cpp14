@@ -40,19 +40,19 @@ namespace hull::algorithms::details::chan {
      * P into disjoint subsets P(1), P(2), ..., P(r), each of size at most m.
      * We make it a no-op by taking the points in their original order, and assume
      * the subsets at indices [0 ; m - 1], [m ; 2m - 1], etc.
+     * @param first - iterator to the first element of the container of points.
+     * @param last - iterator to the one-past last point of the container.
+     * @param r - the number of partitions.
+     * @param m - the guessed number of points on the convex hull.
+     * @return - a lambda function that takes an argument i and returns the
+     *           iterator to the first element of the partition i.
      */
     template <typename RandomIt>
-    class partition final {
-        RandomIt first;
-        std::size_t m;
-        
-    public:
-        explicit partition(RandomIt first, std::size_t m): first{first}, m{m} {}
-        
-        RandomIt operator()(std::size_t i) const noexcept {
-            return first + (i * m);
-        }
-    };
+    auto partition(RandomIt first, RandomIt last, std::size_t r, std::size_t m) {
+        return [first, last, r, m](std::size_t i) {
+            return (i < r) ? (first + (i * m)) : last;
+        };
+    }
     
     /**
      * For each partition P(0), P(1), ..., P(r -  1), call Graham Scan's
@@ -64,22 +64,16 @@ namespace hull::algorithms::details::chan {
      *           one-past last point forming the convex hull. For each partition,
      *           we need to keep track of this resulting iterator.
      */
-    template <typename RandomIt>
-    auto compute_graham_scan_for_each_partition(partition<RandomIt> P, RandomIt last, std::size_t r) {
+    template <typename RandomIt, typename Partition>
+    auto compute_graham_scan_for_each_partition(Partition P, RandomIt last, std::size_t r) {
         // Extra memory required to store the size of the sub-convex hulls
         std::vector<RandomIt> lasts;
         lasts.reserve(r);
         
         // For i = 1 to r do:
         //     Compute Hull(P(i)) using Graham's scan and store the vertices in an ordered array.
-        for (std::size_t i{}; i < r - 1; i++) {
+        for (std::size_t i{}; i < r; i++) {
             const auto convex_hull_last = graham_scan(P(i), P(i + 1));
-            lasts.push_back(convex_hull_last);
-        }
-        
-        // Last subset, which may be smaller
-        {
-            const auto convex_hull_last = graham_scan(P(r - 1), last);
             lasts.push_back(convex_hull_last);
         }
         
@@ -119,9 +113,9 @@ namespace hull::algorithms::details::chan {
     template <
         typename RandomIt,
         typename OutputIt,
+        typename Partition,
         typename TPoint = typename std::iterator_traits<RandomIt>::value_type,
-        typename Lasts = std::vector<RandomIt>,
-        typename Partition = partition<RandomIt>
+        typename Lasts = std::vector<RandomIt>
     >
     std::experimental::optional<OutputIt> merge_partitions_with_jarvis_march(RandomIt first,
                                                                              RandomIt last,
@@ -188,11 +182,11 @@ namespace hull::algorithms::details {
         }
         
         const auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
-        chan::partition<RandomIt> P(first, m);
-        auto lasts = compute_graham_scan_for_each_partition(P, last, r);
+        auto P = chan::partition(first, last, r, m);
+        auto lasts = chan::compute_graham_scan_for_each_partition(P, last, r);
         auto point_on_hull = *chan::get_bottom_most(first, last);
         
-        return merge_partitions_with_jarvis_march(first, last, first2, point_on_hull, P, lasts, r, m);
+        return chan::merge_partitions_with_jarvis_march(first, last, first2, point_on_hull, P, lasts, r, m);
     }
 }
 
