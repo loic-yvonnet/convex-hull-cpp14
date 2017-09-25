@@ -19,7 +19,45 @@
 #include <experimental/optional>
 #include <utility>
 
+namespace hull::algorithms::details::chan {
+    /**
+     * Compute the number of elements (i.e. distance) and the number
+     * of partitions for the Chan's algorithm.
+     * @param first - forward iterator to the first element of the container of points.
+     * @param last - forward iterator to the one-past last point of the container.
+     * @return - a pair containing the number of elements and the number of partitions.
+     */
+    template <typename ForwardIt>
+    auto compute_distance_and_number_of_partitions(ForwardIt first, ForwardIt last, std::size_t m) {
+        // Let r = ceil(n/m)
+        const auto n = std::distance(first, last);
+        const auto r = static_cast<std::size_t>(std::ceil(static_cast<double>(n) / static_cast<double>(m)));
+        return std::make_pair(n, r);
+    }
+    
+    /**
+     * Simplified access to a partition. The Chan's algorithm requires to partition
+     * P into disjoint subsets P(1), P(2), ..., P(r), each of size at most m.
+     * We make it a no-op by taking the points in their original order, and assume
+     * the subsets at indices [0 ; m - 1], [m ; 2m - 1], etc.
+     */
+    template <typename RandomIt>
+    class partition final {
+        RandomIt first;
+        std::size_t m;
+        
+    public:
+        explicit partition(RandomIt first, std::size_t m): first{first}, m{m} {}
+        
+        RandomIt operator()(std::size_t i) const noexcept {
+            return first + (i * m);
+        }
+    };
+}
+
 namespace hull::algorithms::details {
+    
+    
     /**
      * Implementation of Chan algorithm, which is theoretically
      * the most performant in operational research terms.
@@ -31,17 +69,9 @@ namespace hull::algorithms::details {
             return {};
         }
         
-        // (1) Let r = ceil(n/m).
-        const auto n = std::distance(first, last);
-        const auto r = static_cast<std::size_t>(std::ceil(static_cast<double>(n) / static_cast<double>(m)));
+        auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
         
-        // Partition P into disjoint subsets P(1),P(2),... P(r), each of size at most m.
-        // no-op: we take the points in their original order, and assume the subsets at
-        // indices [0 ; m - 1], [m ; 2m - 1], etc.
-        // We define a lambda to clarify the access to P(i):
-        auto P = [first, m](auto i) {
-            return first + (i * m);
-        };
+        chan::partition<RandomIt> P(first, m);
         
         // Extra memory required to store the size of the sub-convex hulls
         std::vector<RandomIt> lasts;
