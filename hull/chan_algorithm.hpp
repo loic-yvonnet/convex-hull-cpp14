@@ -7,10 +7,10 @@
 #define chan_algorithm_h
 
 #include "angle.hpp"
-#include "assert.hpp"
 #include "graham_scan.hpp"
 #include "jarvis_march.hpp"
 #include "point_concept.hpp"
+#include "static_assert.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -69,7 +69,7 @@ namespace hull::algorithms::details {
         
         // Let endpoint = (-Inf; 0)
         using point_type = decltype(point_on_hull);
-        using coord_type = std::remove_reference_t<decltype(x(std::declval<point_type>()))>;
+        using coord_type = coordinate_t<point_type>;
         auto endpoint = point_type{std::numeric_limits<coord_type>::lowest(), static_cast<coord_type>(0)};
         
         // (4) For k = 1 to m do:

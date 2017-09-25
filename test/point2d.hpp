@@ -5,6 +5,8 @@
 #ifndef point2d_h
 #define point2d_h
 
+#include "../hull/point_math_utils.hpp"
+
 /**
  * Simple point structure used to test
  * the convex hull algorithms.

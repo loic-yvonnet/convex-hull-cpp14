@@ -10,9 +10,9 @@
 #ifndef angle_h
 #define angle_h
 
-#include "assert.hpp"
 #include "point_concept.hpp"
-#include "utils.hpp"
+#include "point_math_utils.hpp"
+#include "static_assert.hpp"
 
 #include <cmath>
 
@@ -92,7 +92,7 @@ namespace hull {
     constexpr bool compare_angles(const TPoint& p1, const TPoint& p2) {
         static_assert_is_point<TPoint>();
         
-        using value_type = std::remove_reference_t<decltype(x(p1))>;
+        using value_type = coordinate_t<TPoint>;
         value_type zero{};
         
         if (equals(y(p1), zero)) {

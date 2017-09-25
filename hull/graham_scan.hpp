@@ -7,8 +7,8 @@
 #define graham_scan_h
 
 #include "angle.hpp"
-#include "assert.hpp"
 #include "point_concept.hpp"
+#include "static_assert.hpp"
 
 #include <algorithm>
 

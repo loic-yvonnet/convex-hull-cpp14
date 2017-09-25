@@ -377,6 +377,41 @@ namespace hull {
     auto y(const TPoint& p) -> decltype(std::get<1>(p)) {
         return std::get<1>(p);
     }
+    
+    /**
+     * Helper alias to get the type of the x and y
+     * coordinates for a given point.
+     */
+    template <typename TPoint>
+    using coordinate_t = std::remove_reference_t<decltype(x(std::declval<TPoint>()))>;
+    
+    /**
+     * Make a point (general case).
+     * @param x - the x coordinate.
+     * @param y - the y coordinate.
+     * @return - the point made of x and y.
+     */
+    template <
+        typename TPoint,
+        typename = std::enable_if_t<!details::is_array_v<TPoint>()>
+    >
+    auto make_point(coordinate_t<TPoint> x, coordinate_t<TPoint> y) -> decltype(TPoint{x, y}) {
+        return TPoint{x, y};
+    }
+    
+    /**
+     * Make a point (std::array case).
+     * @param x - the x coordinate.
+     * @param y - the y coordinate.
+     * @return - the point made of x and y.
+     */
+    template <
+        typename TPoint,
+        typename = std::enable_if_t<details::is_array_v<TPoint>()>
+    >
+    auto make_point(coordinate_t<TPoint> x, coordinate_t<TPoint> y) -> decltype(TPoint{{x, y}}) {
+        return TPoint{{x, y}};
+    }
 }
 
 #endif

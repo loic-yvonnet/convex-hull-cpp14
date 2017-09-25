@@ -3,47 +3,16 @@
  * that do not belong anywhere else.
  */
 
-#ifndef utils_h
-#define utils_h
+#ifndef point_math_utils_h
+#define point_math_utils_h
 
-#include "assert.hpp"
+#include "point_concept.hpp"
+#include "math_utils.hpp"
+#include "static_assert.hpp"
 
-#include <limits>
+#include <type_traits>
 
-namespace hull {    
-    /**
-     * Floating-point computations involve numerical errors
-     * that must be taken into account.
-     * This function compares 2 floating point numbers with
-     * an epsilon to avoid most numerical errors.
-     * @param a - the 1st floating-point value.
-     * @param b - the 2nd floating-point value.
-     * @return - true if a ~= b.
-     */
-    template <
-        typename T,
-        typename = std::enable_if_t<std::is_floating_point<T>::value>
-    >
-    constexpr bool equals(T a, T b) {
-        constexpr const auto epsilon = std::numeric_limits<T>::epsilon();
-        return (b - epsilon <= a) && (a <= b + epsilon);
-    }
-
-    /**
-     * Compare 2 integral values.
-     * Integral computations are safer.
-     * @param a - the 1st integral value.
-     * @param b - the 2nd integral value.
-     * @return - true if a == b.
-     */
-    template <
-        typename T,
-        typename std::enable_if_t<std::is_integral<T>::value, int> = 0
-    >
-    constexpr bool equals(T a, T b) {
-        return a == b;
-    }
-
+namespace hull {
     /**
      * Compare 2 points, relying on the above functions to
      * compare their internal coordinates.
@@ -82,7 +51,7 @@ namespace hull {
         static_assert_is_point<TPoint>();
         const auto xp = x(p1) - x(p2);
         const auto yp = y(p1) - y(p2);
-        return TPoint{xp, yp};
+        return make_point<TPoint>(xp, yp);
     }
 }
 

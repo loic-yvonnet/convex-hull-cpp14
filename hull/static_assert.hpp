@@ -2,8 +2,8 @@
  * Common static assertions gathered here.
  */
 
-#ifndef hull_assert_h
-#define hull_assert_h
+#ifndef hull_static_assert_h
+#define hull_static_assert_h
 
 #include "point_concept.hpp"
 

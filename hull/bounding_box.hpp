@@ -6,8 +6,8 @@
 #ifndef bounding_box_h
 #define bounding_box_h
 
-#include "assert.hpp"
 #include "point_concept.hpp"
+#include "static_assert.hpp"
 
 #include <algorithm>
 
