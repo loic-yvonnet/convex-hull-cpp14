@@ -351,3 +351,19 @@ static auto test_y_free_function_for_std_array = add_test([] {
     // Act & Assert
     assert(hull::y(p) == 2);
 });
+
+static auto test_make_point_general_case = add_test([] {
+    // Arrange
+    using p = std::pair<int, int>;
+    
+    // Act & Assert
+    assert((hull::make_point<p>(4, 2) == p{4, 2}));
+});
+
+static auto test_make_point_std_array_case = add_test([] {
+    // Arrange
+    using p = std::array<int, 2>;
+    
+    // Act & Assert
+    assert((hull::make_point<p>(4, 2) == p{{4, 2}}));
+});
