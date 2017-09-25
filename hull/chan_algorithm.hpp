@@ -98,39 +98,50 @@ namespace hull::algorithms::details::chan {
             return y(p1) < y(p2) || (y(p1) == y(p2) && x(p1) > x(p2));
         });
     }
-}
-
-namespace hull::algorithms::details {
-    
     
     /**
-     * Implementation of Chan algorithm, which is theoretically
-     * the most performant in operational research terms.
-     * Reference: http://www.cs.wustl.edu/~pless/506/l3.html
+     * Merge the partitions that were formerly sorted with Graham Scan.
+     * To do so, we use a subset of the Jarvis March algorithm, as described
+     * in Chan's algorithm.
+     * @param first - iterator to the first element of the container of points.
+     * @param last - iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @param point_on_hull - the bottom most point on the convex hull.
+     * @param P - the partitions of points.
+     * @param lasts - random access container of iterators to the lasts elements of the partitions.
+     * @param r - the number of partitions.
+     * @param m - the guessed number of points on the convex hull.
+     * @return - an optional iterator to the last element forming the convex hull of the
+     *           destination container of points. This is an optional iterator because Chan's
+     *           algorithm does not converge on the solution for m < h. If the merge does not
+     *           converge, the returned optional is false.
      */
-    template <typename RandomIt, typename OutputIt>
-    std::experimental::optional<OutputIt> chan_impl(RandomIt first, RandomIt last, OutputIt first2, std::size_t m) {
-        if (first == last) {
-            return {};
-        }
-        
-        const auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
-        
-        chan::partition<RandomIt> P(first, m);
-        
-        auto lasts = compute_graham_scan_for_each_partition(P, last, r);
-        
-        // (3) Let point_on_hull be the bottommost point of P
-        auto point_on_hull = *chan::get_bottom_most(first, last);
-        const auto pfirst = point_on_hull;
-        
-        // (4) For k = 1 to m do:
-        //     (a) For i = 1 to r do:
+    template <
+        typename RandomIt,
+        typename OutputIt,
+        typename TPoint = typename std::iterator_traits<RandomIt>::value_type,
+        typename Lasts = std::vector<RandomIt>,
+        typename Partition = partition<RandomIt>
+    >
+    std::experimental::optional<OutputIt> merge_partitions_with_jarvis_march(RandomIt first,
+                                                                             RandomIt last,
+                                                                             OutputIt first2,
+                                                                             TPoint point_on_hull,
+                                                                             Partition P,
+                                                                             const Lasts& lasts,
+                                                                             std::size_t r,
+                                                                             std::size_t m)
+    {
+        // For k = 1 to m do:
+        //     For i = 1 to r do:
         //         Compute point q in P(i) that maximizes the angle p(k-1)  p(k)  q
-        //     (b) Let p(k+1) be the point q in q(1),q(2),...q(r) than maximizes the angle p(k-1)  p(k)  q
-        //     (c) If p(k+1) = p(1) then return {p(1), p(2), ... p(k)}.
+        //     Let p(k+1) be the point q in q(1),q(2),...q(r) than maximizes the angle p(k-1)  p(k)  q
+        //     If p(k+1) = p(1) then return {p(1), p(2), ... p(k)}.
         using point_type = typename std::iterator_traits<RandomIt>::value_type;
         std::vector<point_type> q(r);
+        
+        const auto pfirst = point_on_hull;
+        
         for (std::size_t k{}; k < m; k++) {
             *first2++ = point_on_hull;
             
@@ -147,8 +158,41 @@ namespace hull::algorithms::details {
             point_on_hull = pk;
         }
         
-        // (5) Return "m was too small, try again"
+        // Return "m was too small, try again"
         return {};
+    }
+}
+
+namespace hull::algorithms::details {
+    /**
+     * Implementation of Chan's algorithm, which is theoretically
+     * the most performant in operational research terms.
+     * This algorithm modifies the order of the input points.
+     * Average time complexity: O(N * log(H)) where N is the input number of
+     * points and H is the number of points on the resulting convex hull.
+     * Average space complexity: O(2 * N).
+     * Reference: http://www.cs.wustl.edu/~pless/506/l3.html
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @param m - the guessed number of points on the convex hull.
+     * @return - an optional iterator to the last element forming the convex hull of the
+     *           destination container of points. This is an optional iterator because Chan's
+     *           algorithm does not converge on the solution for m < H. If the merge does not
+     *           converge, the returned optional is false.
+     */
+    template <typename RandomIt, typename OutputIt>
+    std::experimental::optional<OutputIt> chan_impl(RandomIt first, RandomIt last, OutputIt first2, std::size_t m) {
+        if (first == last) {
+            return {};
+        }
+        
+        const auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
+        chan::partition<RandomIt> P(first, m);
+        auto lasts = compute_graham_scan_for_each_partition(P, last, r);
+        auto point_on_hull = *chan::get_bottom_most(first, last);
+        
+        return merge_partitions_with_jarvis_march(first, last, first2, point_on_hull, P, lasts, r, m);
     }
 }
 
@@ -164,10 +208,10 @@ namespace hull::algorithms {
             return first2;
         }
         
-        // (1) For t = 1; 2; 3... do:
-        //     (a) Let m = min(2^(2^t),n)
-        //     (b) Invoke PartialHull(P, m), returning the result in L.
-        //     (c) If L != "try again" then return L.
+        // For t = 1; 2; 3... do:
+        //     Let m = min(2^(2^t),n)
+        //     Invoke PartialHull(P, m), returning the result in L.
+        //     If L != "try again" then return L.
         using point_type = typename std::iterator_traits<RandomIt>::value_type;
         const std::size_t n = std::distance(first, last);
         std::vector<point_type> intermediary(n);
