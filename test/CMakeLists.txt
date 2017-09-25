@@ -28,4 +28,5 @@ add_executable(hull_unit_tests
                     ../hull/reflection.hpp
                     ../hull/math_utils.hpp
                     ../hull/point_math_utils.hpp
+                    ../hull/tuple_utils.hpp
 )
