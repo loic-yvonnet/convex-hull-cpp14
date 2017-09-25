@@ -12,6 +12,86 @@
 
 #include <algorithm>
 
+namespace hull::algorithms::details::graham {
+    /**
+     * Tells whether there are not enough elements
+     * in the container of points.
+     * @param first - forward iterator to the first point of the container.
+     * @param last - forward iterator to the one-past last point of the container.
+     * @return - true if there are not enough elements.
+     */
+    template <typename ForwardIt>
+    bool is_too_small(ForwardIt first, ForwardIt last) {
+        const auto N = std::distance(first, last);
+        return (N <= 3);
+    }
+    
+    /**
+     * Let points[N+1] = the array of points.
+     * We want points[0] to be a sentinel point that will stop the loop.
+     * Let points[0] = points[N].
+     * @param first - iterator to the first point of the container.
+     * @param last - iterator to the one-past last point of the container.
+     * @return - a lambda function that takes a parameter i and returns
+     *           the iterator to the related point (adding a virtual
+     *           point at the beginning, which is the last point).
+     */
+    template <typename RandomIt>
+    auto points(RandomIt first, RandomIt last) {
+        const auto N = std::distance(first, last);
+        return [first, N](std::size_t i) {
+            if (i == 0) {
+                return first + (N - 1);
+            }
+            else {
+                return first + (i - 1);
+            }
+        };
+    }
+    
+    /**
+     * Scan the points and swap them so that the first points are the
+     * subset which constitue the convex hull.
+     * @param first - iterator to the first point of the container.
+     * @param last - iterator to the one-past last point of the container.
+     * @param points - accessor to the ith point (with points[0] == points[N]).
+     * @return - the number of points on the convex hull.
+     */
+    template <typename RandomIt, typename Points>
+    std::size_t scan(RandomIt first, RandomIt last, Points points) {
+        const auto N = std::distance(first, last);
+        
+        // M will denote the number of points on the convex hull. Let M = 1.
+        std::size_t M{1};
+        
+        // for i = 2 to N:
+        for (std::size_t i{2}; i <= N; i++) {
+            // Find next valid point on convex hull.
+            // while ccw(points[M-1], points[M], points[i]) <= 0:
+            while (cross(*points(M-1), *points(M), *points(i)) <= 0) {
+                if (M > 1) {
+                    M--;
+                }
+                else if (i == N) {
+                    // All points are collinear
+                    break;
+                }
+                else {
+                    i++;
+                }
+            }
+            
+            // Update M and swap points[i] to the correct place.
+            M++;
+            
+            // swap points[M] with points[i]
+            std::swap(*points(M), *points(i));
+        }
+        
+        return M;
+    }
+}
+
 namespace hull::algorithms::details {
     /**
      * Sort a container of points by their polar angles, as described
@@ -52,52 +132,12 @@ namespace hull::algorithms::details {
      */
     template <typename RandomIt>
     RandomIt perform_graham_scan(RandomIt first, RandomIt last) {
-        // let N = number of points
-        auto N = std::distance(first, last);
-        if (N <= 3) {
+        if (graham::is_too_small(first, last)) {
             return last;
         }
         
-        // M will denote the number of points on the convex hull.
-        // let M = 1
-        std::size_t M{1};
-        
-        // let points[N+1] = the array of points
-        // We want points[0] to be a sentinel point that will stop the loop.
-        // let points[0] = points[N]
-        auto points = [first, N](std::size_t i) {
-            if (i == 0) {
-                return first + (N - 1);
-            }
-            else {
-                return first + (i - 1);
-            }
-        };
-        
-        // for i = 2 to N:
-        for (std::size_t i{2}; i <= N; i++) {
-            // Find next valid point on convex hull.
-            // while ccw(points[M-1], points[M], points[i]) <= 0:
-            while (cross(*points(M-1), *points(M), *points(i)) <= 0) {
-                if (M > 1) {
-                    M--;
-                    continue;
-                }
-                else if (i == N) {
-                    // All points are collinear
-                    break;
-                }
-                else {
-                    i++;
-                }
-            }
-            
-            // Update M and swap points[i] to the correct place.
-            M++;
-            
-            // swap points[M] with points[i]
-            std::swap(*points(M), *points(i));
-        }
+        auto points = graham::points(first, last);
+        const auto M = graham::scan(first, last, points);
         
         return first + M;
     }
