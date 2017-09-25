@@ -95,3 +95,25 @@ static auto test_convex_hull_compute_with_tuple = add_test([] {
     assert(target.size() == expected.size());
     assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
 });
+
+static auto test_convex_hull_compute_with_array = add_test([] {
+    // Arrange
+    using ptype = std::array<long, 2>;
+    const auto points = std::array<ptype, 10>{{
+        {{13l, 5l}}, {{12l, 8l}}, {{10l, 3l}}, {{7l, 7l}},
+        {{9l, 6l}}, {{4l, 0l}}, {{7l, 1l}}, {{7l, 4l}},
+        {{3l, 3l}}, {{1l, 1l}}
+    }};
+    const auto expected = std::array<ptype, 6>{{
+        {{4l, 0l}}, {{7l, 1l}}, {{13l, 5l}},
+        {{12l, 8l}}, {{7l, 7l}}, {{1l, 1l}}
+    }};
+    std::vector<ptype> target;
+    
+    // Act
+    hull::convex::compute(points, target);
+    
+    // Assert
+    assert(target.size() == expected.size());
+    assert(std::equal(std::begin(target), std::end(target), std::begin(expected)));
+});

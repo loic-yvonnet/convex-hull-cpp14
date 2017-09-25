@@ -17,6 +17,7 @@
 
 #include "reflection.hpp"
 
+#include <array>
 #include <type_traits>
 #include <tuple>
 #include <utility>
@@ -38,6 +39,9 @@ namespace hull {
         template <typename T, typename U>
         struct tuple_size<std::pair<T, U>>: std::tuple_size<std::pair<T, U>> {};
         
+        template <typename T, std::size_t N>
+        struct tuple_size<std::array<T, N>>: std::tuple_size<std::array<T, N>> {};
+        
         template <typename TTuple>
         constexpr auto tuple_size_v = tuple_size<TTuple>::value;
         
@@ -55,6 +59,9 @@ namespace hull {
         
         template <std::size_t I, typename T>
         struct tuple_element<I, std::pair<T, T>>: std::tuple_element<I, std::pair<T, T>> {};
+        
+        template <std::size_t I, typename T, std::size_t N>
+        struct tuple_element<I, std::array<T, N>>: std::tuple_element<I, std::array<T, N>> {};
         
         template <std::size_t I, typename... TArgs>
         using tuple_element_t = typename tuple_element<I, TArgs...>::type;
@@ -105,6 +112,24 @@ namespace hull {
             using indices = std::make_index_sequence<size>;
             
             return is_tuple_v_impl<TTuple>(indices{});
+        }
+        
+        /**
+         * Type trait to determine whether a given type is a std::array.
+         * Note that this implementation also checks that there are at
+         * least 2 elements in the array.
+         */
+        template <typename TArray, typename T, std::size_t N>
+        struct is_array: std::false_type {};
+        
+        template <typename T, std::size_t N>
+        struct is_array<std::array<T, N>, T, N>: std::conditional_t<N >= 2, std::true_type, std::false_type> {};
+        
+        template <typename TArray>
+        constexpr bool is_array_v() {
+            using T = tuple_element_t<0, TArray>;
+            constexpr auto N = tuple_size_v<TArray>;
+            return is_array<TArray, T, N>::value;
         }
     }
     
@@ -212,6 +237,13 @@ namespace hull {
     struct is_point<TPoint, std::enable_if_t<details::is_tuple_v<TPoint>()>>: std::true_type {};
     
     /**
+     * If the type TPoint is a std::array of size greater than 2, then it fits
+     * the point concept requirements.
+     */
+    template <typename TPoint>
+    struct is_point<TPoint, std::enable_if_t<details::is_array_v<TPoint>()>>: std::true_type {};
+    
+    /**
      * Helper compile-time function to tell whether a type
      * TPoint fit the point concept requirements.
      */
@@ -275,7 +307,10 @@ namespace hull {
      * @param p - the point whose x coordinate is requested.
      * @return - the x coordinate.
      */
-    template <typename TPoint>
+    template <
+        typename TPoint,
+        typename = std::enable_if_t<!details::is_array_v<TPoint>()>
+    >
     auto x(const TPoint& p) -> decltype(std::get<0>(p)) {
         return std::get<0>(p);
     }
@@ -335,7 +370,10 @@ namespace hull {
      * @param p - the point whose y coordinate is requested.
      * @return - the y coordinate.
      */
-    template <typename TPoint>
+    template <
+        typename TPoint,
+        typename = std::enable_if_t<!details::is_array_v<TPoint>()>
+    >
     auto y(const TPoint& p) -> decltype(std::get<1>(p)) {
         return std::get<1>(p);
     }

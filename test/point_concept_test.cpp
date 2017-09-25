@@ -145,6 +145,30 @@ static auto test_invalid_point_another_tuple = add_test([] {
     assert(hull::is_point<p>::value == false);
 });
 
+static auto test_valid_point_array = add_test([] {
+    // Arrange
+    using p = std::array<int, 3>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_valid_point_other_array = add_test([] {
+    // Arrange
+    using p = std::array<float, 2>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == true);
+});
+
+static auto test_invalid_point_array = add_test([] {
+    // Arrange
+    using p = std::array<int, 1>;
+    
+    // Act & Assert
+    assert(hull::is_point<p>::value == false);
+});
+
 static auto test_missing_y_coordinate = add_test([] {
     // Arrange
     struct p {
@@ -310,4 +334,20 @@ static auto test_y_free_function_for_tuple = add_test([] {
     
     // Act & Assert
     assert(hull::y(p) == 4.);
+});
+
+static auto test_x_free_function_for_std_array = add_test([] {
+    // Arrange
+    std::array<int, 2> p{};
+    
+    // Act & Assert
+    assert(hull::x(p) == 0);
+});
+
+static auto test_y_free_function_for_std_array = add_test([] {
+    // Arrange
+    std::array<int, 2> p{{4, 2}};
+    
+    // Act & Assert
+    assert(hull::y(p) == 2);
 });
