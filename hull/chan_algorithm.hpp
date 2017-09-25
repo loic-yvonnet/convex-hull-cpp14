@@ -198,7 +198,17 @@ namespace hull::algorithms::details {
 
 namespace hull::algorithms {
     /**
-     *
+     * Compute the convex hull of a container of points following
+     * Chan's algorithm. This algorithm modifies the input points.
+     * Average time complexity: O(N * log(H)) where N is the number of
+     * input points and H is the number of points on the convex hull.
+     * Average space complexity: O(3 * N).
+     * Reference: http://www.cs.wustl.edu/~pless/506/l3.html
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           destination container of points.
      */
     template <typename RandomIt, typename OutputIt>
     OutputIt chan(RandomIt first, RandomIt last, OutputIt first2) {
