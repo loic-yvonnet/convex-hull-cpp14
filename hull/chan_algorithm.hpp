@@ -114,31 +114,26 @@ namespace hull::algorithms::details {
         auto point_on_hull = *min_y;
         const auto pfirst = *min_y;
         
-        // Let endpoint = (-Inf; 0)
-        using point_type = decltype(point_on_hull);
-        using coord_type = coordinate_t<point_type>;
-        auto endpoint = point_type{std::numeric_limits<coord_type>::lowest(), static_cast<coord_type>(0)};
-        
         // (4) For k = 1 to m do:
         //     (a) For i = 1 to r do:
         //         Compute point q in P(i) that maximizes the angle p(k-1)  p(k)  q
         //     (b) Let p(k+1) be the point q in q(1),q(2),...q(r) than maximizes the angle p(k-1)  p(k)  q
         //     (c) If p(k+1) = p(1) then return {p(1), p(2), ... p(k)}.
+        using point_type = typename std::iterator_traits<RandomIt>::value_type;
         std::vector<point_type> q(r);
         for (std::size_t k{}; k < m; k++) {
             *first2++ = point_on_hull;
             
             for (std::size_t i{}; i < r; i++) {
-                q[i] = max_jarvis_march(P(i), lasts[i], point_on_hull/*, endpoint*/);
+                q[i] = max_jarvis_march(P(i), lasts[i], point_on_hull);
             }
             
-            const auto pk = details::max_jarvis_march(std::begin(q), std::end(q), point_on_hull/*, endpoint*/);
+            const auto pk = details::max_jarvis_march(std::begin(q), std::end(q), point_on_hull);
             
             if (hull::equals(pk, pfirst)) {
                 return first2;
             }
             
-            endpoint = point_on_hull;
             point_on_hull = pk;
         }
         
