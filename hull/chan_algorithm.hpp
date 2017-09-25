@@ -85,6 +85,19 @@ namespace hull::algorithms::details::chan {
         
         return lasts;
     }
+    
+    /**
+     * Get the bottom most point from a container of points.
+     * @param first - forward iterator to the first element of the container of points.
+     * @param last - forward iterator to the one-past last point of the container.
+     * @return - iterator to the bottom most point of the container.
+     */
+    template <typename ForwardIt>
+    ForwardIt get_bottom_most(ForwardIt first, ForwardIt last) {
+        return std::min_element(first, last, [](const auto& p1, const auto& p2) {
+            return y(p1) < y(p2) || (y(p1) == y(p2) && x(p1) > x(p2));
+        });
+    }
 }
 
 namespace hull::algorithms::details {
@@ -108,11 +121,8 @@ namespace hull::algorithms::details {
         auto lasts = compute_graham_scan_for_each_partition(P, last, r);
         
         // (3) Let point_on_hull be the bottommost point of P
-        const auto min_y = std::min_element(first, last, [](const auto& p1, const auto& p2) {
-            return y(p1) < y(p2) || (y(p1) == y(p2) && x(p1) > x(p2));
-        });
-        auto point_on_hull = *min_y;
-        const auto pfirst = *min_y;
+        auto point_on_hull = *chan::get_bottom_most(first, last);
+        const auto pfirst = point_on_hull;
         
         // (4) For k = 1 to m do:
         //     (a) For i = 1 to r do:
