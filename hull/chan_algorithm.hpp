@@ -53,6 +53,38 @@ namespace hull::algorithms::details::chan {
             return first + (i * m);
         }
     };
+    
+    /**
+     * For each partition P(0), P(1), ..., P(r -  1), call Graham Scan's
+     * algorithm. P(r - 1) may have less elements than the other partitions.
+     * @param P - the partitions of points.
+     * @param last - iterator to the one-past last point of the container.
+     * @param r - the number of partitions.
+     * @return - a vector of iterators. Graham Scan returns an iterator to the
+     *           one-past last point forming the convex hull. For each partition,
+     *           we need to keep track of this resulting iterator.
+     */
+    template <typename RandomIt>
+    auto compute_graham_scan_for_each_partition(partition<RandomIt> P, RandomIt last, std::size_t r) {
+        // Extra memory required to store the size of the sub-convex hulls
+        std::vector<RandomIt> lasts;
+        lasts.reserve(r);
+        
+        // For i = 1 to r do:
+        //     Compute Hull(P(i)) using Graham's scan and store the vertices in an ordered array.
+        for (std::size_t i{}; i < r - 1; i++) {
+            const auto convex_hull_last = graham_scan(P(i), P(i + 1));
+            lasts.push_back(convex_hull_last);
+        }
+        
+        // Last subset, which may be smaller
+        {
+            const auto convex_hull_last = graham_scan(P(r - 1), last);
+            lasts.push_back(convex_hull_last);
+        }
+        
+        return lasts;
+    }
 }
 
 namespace hull::algorithms::details {
@@ -69,26 +101,11 @@ namespace hull::algorithms::details {
             return {};
         }
         
-        auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
+        const auto [n, r] = chan::compute_distance_and_number_of_partitions(first, last, m);
         
         chan::partition<RandomIt> P(first, m);
         
-        // Extra memory required to store the size of the sub-convex hulls
-        std::vector<RandomIt> lasts;
-        lasts.reserve(r);
-        
-        // (2) For i = 1 to r do:
-        //     (a) Compute Hull(P(i)) using Graham's scan and store the vertices in an ordered array.
-        for (std::size_t i{}; i < r - 1; i++) {
-            const auto convex_hull_last = graham_scan(P(i), P(i + 1));
-            lasts.push_back(convex_hull_last);
-        }
-        
-        // Last subset, which may be smaller
-        {
-            const auto convex_hull_last = graham_scan(P(r - 1), last);
-            lasts.push_back(convex_hull_last);
-        }
+        auto lasts = compute_graham_scan_for_each_partition(P, last, r);
         
         // (3) Let point_on_hull be the bottommost point of P
         const auto min_y = std::min_element(first, last, [](const auto& p1, const auto& p2) {
