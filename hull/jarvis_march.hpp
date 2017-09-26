@@ -101,7 +101,6 @@ namespace hull::algorithms::details {
         // Repeat until wrapped around to first hull point
         std::size_t i{};
         do {
-            // P[i] = pointOnHull
             *(first2 + i) = point_on_hull;
             
             point_on_hull = jarvis::next_point_on_hull(first, last, point_on_hull);
