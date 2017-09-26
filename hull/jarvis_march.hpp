@@ -52,16 +52,21 @@ namespace hull::algorithms::details::jarvis {
 
 namespace hull::algorithms::details {
     /**
-     *
+     * Given a point on the convex hull, find the next point
+     * on the convex hull in the clockwise order.
+     * Average time complexity: O(N) where N is the number of points.
+     * Average space complexity: O(N).
+     * @param first - the forward iterator to the first point of the container.
+     * @param last - the forward iterator to the one-past last point of the container.
+     * @param point_on_hull - a point that is known to be on the convex hull.
+     * @return - the next point of the convex hull, in clockwise order.
      */
     template <
-        typename RandomIt,
-        typename TPoint = typename RandomIt::value_type
+        typename ForwardIt,
+        typename TPoint = typename ForwardIt::value_type
     >
-    TPoint max_jarvis_march(RandomIt first, RandomIt last, const TPoint& point_on_hull) {
+    TPoint max_jarvis_march(ForwardIt first, ForwardIt last, const TPoint& point_on_hull) {
         auto endpoint = point_on_hull;
-        
-        // Helper lambda to determine wheter sj is on the left of line pi to endpoint
         auto is_on_the_left = jarvis::is_on_the_left(point_on_hull, endpoint);
         
         std::for_each(first, last, [&endpoint, &point_on_hull, is_on_the_left](const auto& sj) {
@@ -73,6 +78,39 @@ namespace hull::algorithms::details {
         });
         
         return endpoint;
+    }
+    
+    /**
+     * Compute the convex hull of a container of points following
+     * the Jarvis March algorithm.
+     * Average time complexity: O(N * H) where N is the number of input
+     * points and H the number of points on the convex hull.
+     * Average space complexity: O(N + H).
+     * Reference: https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @return - the iterator to the last element forming the convex hull of the
+     *           provided container of points.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    RandomIt2 jarvis_march_impl(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
+        // leftmost point
+        auto point_on_hull = *jarvis::get_left_most(first, last);
+        
+        // Repeat until wrapped around to first hull point
+        std::size_t i{};
+        do {
+            // P[i] = pointOnHull
+            *(first2 + i) = point_on_hull;
+            
+            point_on_hull = max_jarvis_march(first, last, point_on_hull);
+            
+            i++;
+        }
+        while (!hull::equals(point_on_hull, *first2));
+        
+        return first2 + i;
     }
 }
 
@@ -100,22 +138,7 @@ namespace hull::algorithms {
             return std::copy(first, last, first2);
         }
         
-        // leftmost point
-        auto point_on_hull = *details::jarvis::get_left_most(first, last);
-        
-        // Repeat until wrapped around to first hull point
-        std::size_t i{};
-        do {
-            // P[i] = pointOnHull
-            *(first2 + i) = point_on_hull;
-            
-            point_on_hull = details::max_jarvis_march(first, last, point_on_hull);
-            
-            i++;
-        }
-        while (!hull::equals(point_on_hull, *first2));
-        
-        return first2 + i;
+        return details::jarvis_march_impl(first, last, first2);
     }
 }
 
