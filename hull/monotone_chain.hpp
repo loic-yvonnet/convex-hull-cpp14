@@ -12,6 +12,38 @@
 
 #include <algorithm>
 
+namespace hull::algorithms::details::monotone {
+    /**
+     * Sort the points of P by x-coordinate (in case of a tie, sort by y-coordinate).
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     */
+    template <typename RandomIt>
+    void sort(RandomIt first, RandomIt last) {
+        std::sort(first, last, [](const auto& p1, const auto& p2) {
+            return (x(p1) < x(p2) || (hull::equals(x(p1), x(p2)) && y(p1) < y(p2)));
+        });
+    }
+    
+    /**
+     * Builds a lambda function which tells whether a given point
+     * (the one at index i with respect to first iterator) is on the
+     * left (that is, not counter-clockwise) of the vector made of
+     * the last 2 points on the result convex hull.
+     * @param k - the index of the last point on the convex hull.
+     * @param first - iterator to the first point in the input container of points.
+     * @param first2 - iterator to the first point in the resulting convex hull.
+     * @return - a lambda function which takes an index i and tells whether
+     *           the point at first+i is on the left of vector first2+(k-2) first2+(k-1).
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    auto no_counter_clockwise(std::size_t& k, RandomIt1 first, RandomIt2 first2) {
+        return [&k, first, first2](auto i) {
+            return cross(*(first2 + (k - 2)), *(first2 + (k - 1)), *(first + i)) <= 0;
+        };
+    };
+}
+
 namespace hull::algorithms::details {
     /**
      * Compute the convex hull of a container of points following
@@ -29,16 +61,11 @@ namespace hull::algorithms::details {
      */
     template <typename RandomIt1, typename RandomIt2>
     RandomIt2 monotone_chain_impl(RandomIt1 first, RandomIt1 last, RandomIt2 first2) {
-        // Sort the points of P by x-coordinate (in case of a tie, sort by y-coordinate)
-        std::sort(first, last, [](const auto& p1, const auto& p2) {
-            return (x(p1) < x(p2) || (hull::equals(x(p1), x(p2)) && y(p1) < y(p2)));
-        });
+        monotone::sort(first, last);
         
         std::size_t k{};
         
-        auto no_counter_clockwise = [&k, first, first2](auto i) {
-            return cross(*(first2 + (k - 2)), *(first2 + (k - 1)), *(first + i)) <= 0;
-        };
+        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
         
         auto copy = [&k, first, first2](auto i) {
             *(first2 + k) = *(first + i);
