@@ -35,6 +35,19 @@ namespace hull::algorithms::details::jarvis {
             return res > 0;
         };
     }
+    
+    /**
+     * Get the left most point from a container of points.
+     * @param first - forward iterator to the first element of the container of points.
+     * @param last - forward iterator to the one-past last point of the container.
+     * @return - iterator to the left most point of the container.
+     */
+    template <typename ForwardIt>
+    ForwardIt get_left_most(ForwardIt first, ForwardIt last) {
+        return std::min_element(first, last, [](const auto& p1, const auto& p2) {
+            return x(p1) < x(p2) || (x(p1) == x(p2) && y(p1) > y(p2));
+        });
+    }
 }
 
 namespace hull::algorithms::details {
@@ -88,9 +101,7 @@ namespace hull::algorithms {
         }
         
         // leftmost point
-        auto point_on_hull = *std::min_element(first, last, [](const auto& p1, const auto& p2) {
-            return x(p1) < x(p2) || (x(p1) == x(p2) && y(p1) > y(p2));
-        });
+        auto point_on_hull = *details::jarvis::get_left_most(first, last);
         
         // Repeat until wrapped around to first hull point
         std::size_t i{};
