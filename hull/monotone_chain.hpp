@@ -26,7 +26,7 @@ namespace hull::algorithms::details::monotone {
     }
     
     /**
-     * Builds a lambda function which tells whether a given point
+     * Build a lambda function which tells whether a given point
      * (the one at index i with respect to first iterator) is on the
      * left (that is, not counter-clockwise) of the vector made of
      * the last 2 points on the result convex hull.
@@ -42,6 +42,23 @@ namespace hull::algorithms::details::monotone {
             return cross(*(first2 + (k - 2)), *(first2 + (k - 1)), *(first + i)) <= 0;
         };
     };
+    
+    /**
+     * Build a lambda function which copies the input point at
+     * index i into the resulting convex hull at index k (and it
+     * increment k, the number of points in the convex hull).
+     * @param k - the number of points in the resulting convex hull.
+     * @param first - iterator to the first point in the input container of points.
+     * @param first2 - iterator to the first point in the resulting convex hull.
+     * @return - a lambda function which copies first+i to first2+k.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    auto copy(std::size_t& k, RandomIt1 first, RandomIt2 first2) {
+        return [&k, first, first2](auto i) {
+            *(first2 + k) = *(first + i);
+            k++;
+        };
+    }
 }
 
 namespace hull::algorithms::details {
@@ -64,13 +81,8 @@ namespace hull::algorithms::details {
         monotone::sort(first, last);
         
         std::size_t k{};
-        
         auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
-        
-        auto copy = [&k, first, first2](auto i) {
-            *(first2 + k) = *(first + i);
-            k++;
-        };
+        auto copy = monotone::copy(k, first, first2);
         
         const auto N = std::distance(first, last);
         
