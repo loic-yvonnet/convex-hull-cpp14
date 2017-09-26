@@ -85,7 +85,7 @@ namespace hull::algorithms::details::monotone {
      */
     template <typename RandomIt1, typename RandomIt2>
     void lower_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
-        auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
+        const auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
         
         for (int i{}; i < N; i++) {
             while (k >= 2 && no_counter_clockwise(i)) {
@@ -104,7 +104,7 @@ namespace hull::algorithms::details::monotone {
      */
     template <typename RandomIt1, typename RandomIt2>
     void upper_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
-        auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
+        const auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
         
         auto t = k + 1;
         for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
