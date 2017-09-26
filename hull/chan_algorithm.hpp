@@ -140,16 +140,14 @@ namespace hull::algorithms::details::chan {
             *first2++ = point_on_hull;
             
             for (std::size_t i{}; i < r; i++) {
-                q[i] = max_jarvis_march(P(i), lasts[i], point_on_hull);
+                q[i] = details::jarvis::next_point_on_hull(P(i), lasts[i], point_on_hull);
             }
             
-            const auto pk = details::max_jarvis_march(std::begin(q), std::end(q), point_on_hull);
+            point_on_hull = details::jarvis::next_point_on_hull(std::begin(q), std::end(q), point_on_hull);
             
-            if (hull::equals(pk, pfirst)) {
+            if (hull::equals(point_on_hull, pfirst)) {
                 return first2;
             }
-            
-            point_on_hull = pk;
         }
         
         // Return "m was too small, try again"

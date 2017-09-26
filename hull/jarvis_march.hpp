@@ -48,9 +48,7 @@ namespace hull::algorithms::details::jarvis {
             return x(p1) < x(p2) || (x(p1) == x(p2) && y(p1) > y(p2));
         });
     }
-}
-
-namespace hull::algorithms::details {
+    
     /**
      * Given a point on the convex hull, find the next point
      * on the convex hull in the clockwise order.
@@ -62,10 +60,10 @@ namespace hull::algorithms::details {
      * @return - the next point of the convex hull, in clockwise order.
      */
     template <
-        typename ForwardIt,
-        typename TPoint = typename ForwardIt::value_type
+    typename ForwardIt,
+    typename TPoint = typename ForwardIt::value_type
     >
-    TPoint max_jarvis_march(ForwardIt first, ForwardIt last, const TPoint& point_on_hull) {
+    TPoint next_point_on_hull(ForwardIt first, ForwardIt last, const TPoint& point_on_hull) {
         auto endpoint = point_on_hull;
         auto is_on_the_left = jarvis::is_on_the_left(point_on_hull, endpoint);
         
@@ -79,7 +77,9 @@ namespace hull::algorithms::details {
         
         return endpoint;
     }
-    
+}
+
+namespace hull::algorithms::details {
     /**
      * Compute the convex hull of a container of points following
      * the Jarvis March algorithm.
@@ -104,7 +104,7 @@ namespace hull::algorithms::details {
             // P[i] = pointOnHull
             *(first2 + i) = point_on_hull;
             
-            point_on_hull = max_jarvis_march(first, last, point_on_hull);
+            point_on_hull = jarvis::next_point_on_hull(first, last, point_on_hull);
             
             i++;
         }
