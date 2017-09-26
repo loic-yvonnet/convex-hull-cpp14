@@ -11,6 +11,7 @@
 #include "static_assert.hpp"
 
 #include <algorithm>
+#include <tuple>
 
 namespace hull::algorithms::details::monotone {
     /**
@@ -61,6 +62,21 @@ namespace hull::algorithms::details::monotone {
     }
     
     /**
+     * Get all the dependencies of the lower_hull and upper_hull algorithms.
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @param k - this will be the number of points on the convex hull.
+     * @return - a tuple containing all the dependencies of the lower and upper hull algorithms.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    auto get_dependencies(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
+        return std::make_tuple(no_counter_clockwise(k, first, first2),
+                               copy(k, first, first2),
+                               std::distance(first, last));
+    }
+    
+    /**
      * Compute the lower hull of the convex hull.
      * @param first - the random access iterator to the first point of the container.
      * @param last - the random access iterator to the one-past last point of the container.
@@ -69,9 +85,7 @@ namespace hull::algorithms::details::monotone {
      */
     template <typename RandomIt1, typename RandomIt2>
     void lower_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
-        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
-        auto copy = monotone::copy(k, first, first2);
-        const auto N = std::distance(first, last);
+        auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
         
         for (int i{}; i < N; i++) {
             while (k >= 2 && no_counter_clockwise(i)) {
@@ -90,9 +104,7 @@ namespace hull::algorithms::details::monotone {
      */
     template <typename RandomIt1, typename RandomIt2>
     void upper_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
-        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
-        auto copy = monotone::copy(k, first, first2);
-        const auto N = std::distance(first, last);
+        auto [no_counter_clockwise, copy, N] = get_dependencies(first, last, first2, k);
         
         auto t = k + 1;
         for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
