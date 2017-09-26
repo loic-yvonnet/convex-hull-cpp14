@@ -59,6 +59,49 @@ namespace hull::algorithms::details::monotone {
             k++;
         };
     }
+    
+    /**
+     * Compute the lower hull of the convex hull.
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @param k - this will be the number of points on the lower hull.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    void lower_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
+        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
+        auto copy = monotone::copy(k, first, first2);
+        const auto N = std::distance(first, last);
+        
+        for (int i{}; i < N; i++) {
+            while (k >= 2 && no_counter_clockwise(i)) {
+                k--;
+            }
+            copy(i);
+        }
+    }
+
+    /**
+     * Compute the upper hull of the convex hull.
+     * @param first - the random access iterator to the first point of the container.
+     * @param last - the random access iterator to the one-past last point of the container.
+     * @param first2 - the random access iterator to the first point of the destination container.
+     * @param k - this will be the number of points on the upper hull.
+     */
+    template <typename RandomIt1, typename RandomIt2>
+    void upper_hull(RandomIt1 first, RandomIt1 last, RandomIt2 first2, std::size_t& k) {
+        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
+        auto copy = monotone::copy(k, first, first2);
+        const auto N = std::distance(first, last);
+        
+        auto t = k + 1;
+        for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
+            while (k >= t && no_counter_clockwise(i)) {
+                k--;
+            }
+            copy(i);
+        }
+    }
 }
 
 namespace hull::algorithms::details {
@@ -81,27 +124,8 @@ namespace hull::algorithms::details {
         monotone::sort(first, last);
         
         std::size_t k{};
-        auto no_counter_clockwise = monotone::no_counter_clockwise(k, first, first2);
-        auto copy = monotone::copy(k, first, first2);
-        
-        const auto N = std::distance(first, last);
-        
-        // Lower hull
-        for (int i{}; i < N; i++) {
-            while (k >= 2 && no_counter_clockwise(i)) {
-                k--;
-            }
-            copy(i);
-        }
-        
-        // Upper hull
-        auto t = k + 1;
-        for (int i{static_cast<int>(N - 2)}; i >= 0; i--) {
-            while (k >= t && no_counter_clockwise(i)) {
-                k--;
-            }
-            copy(i);
-        }
+        monotone::lower_hull(first, last, first2, k);
+        monotone::upper_hull(first, last, first2, k);
         
         return first2 + (k - 1);
     }
