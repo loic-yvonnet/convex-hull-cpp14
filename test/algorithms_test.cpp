@@ -8,6 +8,7 @@
 
 #include <array>
 #include <vector>
+using namespace std
 
 static auto test_convex_hull_compute_without_policy = add_test([] {
     // Arrange
